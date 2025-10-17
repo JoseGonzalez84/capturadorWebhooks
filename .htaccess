@@ -1,4 +1,18 @@
 RewriteEngine On
+## Evitar reescribir si la petición corresponde a un archivo o directorio real
+## (esto permite servir /webhooks/index.php, /webhooks/, assets, etc.)
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
 
-# Route webhooks/{token} to the main webhook receiver while preserving query string
-RewriteRule ^webhooks/([^/]+)/?$ webhook.php?token=$1 [L,QSA]
+## Si este .htaccess está en la raíz del sitio y la app vive bajo /webhooks
+## (p. ej. https://mi-dominio/webhooks/prueba), mapea /webhooks/{token} -> /webhook.php?token={token}
+RewriteRule ^webhooks/([^/]+)/?$ /webhook.php?token=$1 [L,QSA]
+
+## Si el .htaccess está dentro de la carpeta /webhooks (otra forma de desplegar),
+## usar RewriteBase y mapear rutas relativas /{token} -> webhook.php?token={token}
+RewriteBase /webhooks/
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+RewriteRule ^([^/]+)/?$ webhook.php?token=$1 [L,QSA]
