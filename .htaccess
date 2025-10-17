@@ -1,0 +1,4 @@
+RewriteEngine On
+
+# Route webhooks/{token} to the main webhook receiver while preserving query string
+RewriteRule ^webhooks/([^/]+)/?$ webhook.php?token=$1 [L,QSA]

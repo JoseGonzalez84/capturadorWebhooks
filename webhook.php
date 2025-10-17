@@ -1,8 +1,6 @@
 <?php
 // webhook.php - Endpoint para recibir todas las llamadas REST
 
-echo "hola";
-
 require_once 'database.php';
 
 // Función para obtener la IP real del cliente
@@ -37,7 +35,10 @@ $ip_address = getRealIP();
 $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $content_type = $_SERVER['CONTENT_TYPE'] ?? '';
 
-// Preparar datos para almacenar
+// Soporte para token vía parámetro o querystring (p.ej. /webhooks/abc123 -> token=abc123)
+$token = $_GET['token'] ?? null;
+
+// Preparar datos para almacenar (incluyendo token si existe)
 $webhook_data = [
     'method' => $method,
     'url' => $url,
@@ -45,13 +46,19 @@ $webhook_data = [
     'body' => $body,
     'ip_address' => $ip_address,
     'user_agent' => $user_agent,
-    'content_type' => $content_type
+    'content_type' => $content_type,
+    'endpoint_token' => $token
 ];
 
 // Guardar en la base de datos
 try {
-    $id = Database::logWebhook($webhook_data);
-    
+    if ($token !== null) {
+        // Usar el método que incluye endpoint_token
+        $id = Database::logWebhookWithToken($webhook_data);
+    } else {
+        $id = Database::logWebhook($webhook_data);
+    }
+
     // Respuesta exitosa
     http_response_code(200);
     header('Content-Type: application/json');
@@ -59,9 +66,10 @@ try {
         'status' => 'success',
         'message' => 'Webhook recibido correctamente',
         'id' => $id,
-        'timestamp' => date('Y-m-d H:i:s')
+        'timestamp' => date('Y-m-d H:i:s'),
+        'endpoint_token' => $token
     ]);
-    
+
 } catch (Exception $e) {
     // Respuesta de error
     http_response_code(500);

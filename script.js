@@ -5,18 +5,139 @@ let autoRefreshInterval = null;
 let webhooksCount = 0;
 let selectedWebhookId = null;
 let webhooksData = [];
+let currentToken = '';
 
 // Inicializar la aplicación cuando se carga la página
 document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar token desde querystring o input
+    const urlParams = new URLSearchParams(window.location.search);
+    currentToken = urlParams.get('token') || '';
+
+    const tokenInput = document.getElementById('token-input');
+    if (tokenInput) {
+        if (!currentToken) currentToken = tokenInput.value || '';
+        tokenInput.value = currentToken;
+    }
+
     loadWebhooks();
     setupAutoRefresh();
+    // Cargar endpoints disponibles
+    loadEndpoints();
 });
+
+// Cargar lista de endpoints desde la API
+async function loadEndpoints() {
+    try {
+        const resp = await fetch('api.php?action=list_endpoints');
+        const data = await resp.json();
+        if (data.status === 'success') {
+            renderEndpointsList(data.data);
+        } else {
+            console.error('Error al cargar endpoints:', data.message);
+        }
+    } catch (err) {
+        console.error('Error de red al cargar endpoints:', err);
+    }
+}
+
+function renderEndpointsList(endpoints) {
+    const container = document.getElementById('endpoints-list');
+    if (!container) return;
+
+    if (!endpoints || endpoints.length === 0) {
+        container.innerHTML = '<p>No hay tokens creados.</p>';
+        return;
+    }
+
+    container.innerHTML = endpoints.map(ep => `
+        <div class="endpoint-item" style="display:flex; align-items:center; justify-content:space-between; padding:6px; border-bottom:1px solid #eee;">
+            <div>
+                <strong>${escapeHtml(ep.token)}</strong>
+                ${ep.label ? '<span style="margin-left:8px;color:#666;">' + escapeHtml(ep.label) + '</span>' : ''}
+                <div style="color:#888;font-size:12px;">#${ep.id} · ${ep.created_at}</div>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button onclick="applyTokenFromList('${encodeURIComponent(JSON.stringify({token:ep.token}))}')">Aplicar</button>
+                <button onclick="deleteEndpoint(${ep.id}, '${ep.token}')">Borrar</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Helper para aplicar token desde la lista (evita problemas con comillas)
+function applyTokenFromList(encoded) {
+    try {
+        const obj = JSON.parse(decodeURIComponent(encoded));
+        const tokenInput = document.getElementById('token-input');
+        if (tokenInput) tokenInput.value = obj.token;
+        applyToken();
+    } catch (e) {
+        console.error('Error al aplicar token desde lista', e);
+    }
+}
+
+// Crear nuevo endpoint/token
+async function createEndpoint() {
+    const token = document.getElementById('new-endpoint-token').value.trim();
+    const label = document.getElementById('new-endpoint-label').value.trim();
+    if (!token) { alert('El token es requerido'); return; }
+
+    try {
+        const resp = await fetch('api.php?action=create_endpoint', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: token, label: label })
+        });
+        const data = await resp.json();
+        if (data.status === 'success') {
+            document.getElementById('new-endpoint-token').value = '';
+            document.getElementById('new-endpoint-label').value = '';
+            loadEndpoints();
+            alert('Token creado: ' + token);
+        } else {
+            alert('Error al crear token: ' + data.message);
+        }
+    } catch (err) {
+        console.error('Error al crear endpoint:', err);
+        alert('Error de red al crear token');
+    }
+}
+
+// Borrar endpoint por id (y opcionalmente limpiar registros)
+async function deleteEndpoint(id, token) {
+    if (!confirm('¿Borrar token ' + token + ' y opcionalmente sus registros?')) return;
+
+    try {
+        const resp = await fetch('api.php?action=delete_endpoint&id=' + encodeURIComponent(id));
+        const data = await resp.json();
+        if (data.status === 'success') {
+            // Preguntar si también borrar registros asociados
+            if (confirm('¿Eliminar también los webhooks asociados a este token?')) {
+                await fetch('api.php?action=clear_webhooks&token=' + encodeURIComponent(token));
+            }
+            loadEndpoints();
+            // Si el token borrado estaba aplicado, limpiarlo
+            if (currentToken === token) {
+                const tokenInput = document.getElementById('token-input');
+                if (tokenInput) tokenInput.value = '';
+                applyToken();
+            }
+        } else {
+            alert('Error al borrar token: ' + data.message);
+        }
+    } catch (err) {
+        console.error('Error al borrar endpoint:', err);
+        alert('Error de red al borrar token');
+    }
+}
 
 // Cargar webhooks desde la API
 async function loadWebhooks() {
     try {
-        showLoading(true);
-        const response = await fetch('api.php?action=get_webhooks&limit=50');
+    showLoading(true);
+    let apiUrl = 'api.php?action=get_webhooks&limit=50';
+    if (currentToken) apiUrl += '&token=' + encodeURIComponent(currentToken);
+    const response = await fetch(apiUrl);
         const data = await response.json();
 
         if (data.status === 'success') {
@@ -41,7 +162,9 @@ async function loadNewWebhooks() {
     if (!lastUpdateTime) return;
 
     try {
-        const response = await fetch(`api.php?action=get_new_webhooks&since=${encodeURIComponent(lastUpdateTime)}`);
+    let apiUrl = `api.php?action=get_new_webhooks&since=${encodeURIComponent(lastUpdateTime)}`;
+    if (currentToken) apiUrl += '&token=' + encodeURIComponent(currentToken);
+    const response = await fetch(apiUrl);
         const data = await response.json();
 
         if (data.status === 'success' && data.data.length > 0) {
@@ -405,7 +528,9 @@ async function clearWebhooks() {
     }
 
     try {
-        const response = await fetch('api.php?action=clear_webhooks');
+    let apiUrl = 'api.php?action=clear_webhooks';
+    if (currentToken) apiUrl += '&token=' + encodeURIComponent(currentToken);
+    const response = await fetch(apiUrl);
         const data = await response.json();
 
         if (data.status === 'success') {
@@ -435,4 +560,30 @@ function toggleAccordion(headerElement) {
     // Toggle de las clases
     content.classList.toggle('open');
     icon.classList.toggle('open');
+}
+
+// Aplicar el token introducido por el usuario y actualizar la URL/endpoint
+function applyToken() {
+    const tokenInput = document.getElementById('token-input');
+    currentToken = tokenInput ? tokenInput.value.trim() : '';
+
+    // Actualizar la URL en el navegador (sin recargar)
+    const url = new URL(window.location.href);
+    if (currentToken) {
+        url.searchParams.set('token', currentToken);
+    } else {
+        url.searchParams.delete('token');
+    }
+    window.history.replaceState({}, '', url.toString());
+
+    // Actualizar visual del endpoint
+    const webhookUrlEl = document.getElementById('webhook-url');
+    if (webhookUrlEl) {
+        const base = webhookUrlEl.textContent.split('/webhooks/')[0];
+        webhookUrlEl.textContent = base + '/webhooks/' + (currentToken || 'your_token_here');
+    }
+
+    // Recargar registros para el token seleccionado
+    lastUpdateTime = '';
+    loadWebhooks();
 }
