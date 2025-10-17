@@ -163,7 +163,10 @@ button:hover {
     display: grid;
     grid-template-columns: 400px 1fr;
     gap: 20px;
-    min-height: 600px;
+    /* Ajustar al alto de la ventana restando espacio de header/controles
+       Nota: el valor 260px approximates la altura ocupada por header + stats + paddings */
+    min-height: calc(100vh - 160px);
+    align-items: start;
 }
 
 /* Lista de webhooks (columna izquierda) */
@@ -172,6 +175,10 @@ button:hover {
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     overflow: hidden;
+    /* Hacer que la columna izquierda ocupe altura disponible y su contenido sea scrollable */
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 200px);
 }
 
 .webhooks-list h3 {
@@ -183,9 +190,11 @@ button:hover {
 }
 
 .webhooks-list #webhooks-container {
-    max-height: calc(100vh - 340px);
-    min-height: 400px;
+    /* Usar flex para ajustar altura dinámica del contenedor interno */
+    flex: 1 1 auto;
+    min-height: 0; /* importante para que flex funcione correctamente en WebKit */
     overflow-y: auto;
+    max-height: none;
 }
 
 .webhooks-list #no-webhooks {
@@ -200,6 +209,9 @@ button:hover {
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 200px);
 }
 
 #detail-placeholder {
@@ -226,9 +238,10 @@ button:hover {
 }
 
 #detail-content {
-    max-height: calc(100vh - 340px);
-    min-height: 400px;
-    overflow-y: auto;
+    /* Contenedor scrollable para el detalle; la cabecera del webhook será fija */
+    flex: 1 1 auto;
+    min-height: 0; /* permite que el hijo overflow funcione dentro de flex */
+    overflow: auto;
 }
 
 /* Items de la lista (simplificados para el listado) */
@@ -310,6 +323,11 @@ button:hover {
     overflow: visible;
     transition: none;
     animation: none;
+    /* Hacer que el item ocupe todo el espacio disponible y se estructure en columnas
+       para poder fijar la cabecera y hacer scroll solo del contenido */
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .webhook-item:hover {
@@ -336,6 +354,8 @@ button:hover {
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
+    /* Fijar la cabecera en la parte superior del panel de detalle */
+    flex: 0 0 auto;
 }
 
 .webhook-method {
@@ -364,6 +384,10 @@ button:hover {
 
 .webhook-details {
     padding: 20px;
+    /* Hacer scrollable solo esta sección dentro del detalle */
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
 }
 
 .detail-section {
@@ -604,7 +628,7 @@ button:hover {
 }
 
 .payload-toolbar button:hover {
-    transform: translateY(-2px);
+    background: rgba(4, 120, 215, 0.664);
 }
 
 .copy-button.copied {

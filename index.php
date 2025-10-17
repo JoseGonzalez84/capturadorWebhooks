@@ -38,7 +38,7 @@
                     <div class="tokens-accordion" id="tokens-accordion">
                         <div class="tokens-header" id="tokens-accordion-header">
                             <div class="tokens-left">                                
-                                <strong><span id="token-current-value"><?php echo htmlspecialchars($selectedToken); ?></span></strong>
+                                <strong><span style="visibility:hidden" id="token-current-value"><?php echo htmlspecialchars($selectedToken); ?></span></strong>
                             </div>
                             <div class="tokens-center">
                                 <code id="token-endpoint-display"><?php echo $displayEndpoint; ?></code>

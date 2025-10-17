@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Inicializar token desde querystring, ruta /webhooks/view/<token> o input
     const urlParams = new URLSearchParams(window.location.search);
     currentToken = urlParams.get('token') || '';
-/*
+
     // Si no viene por querystring, intentar extraerlo de la ruta /webhooks/view/<token>
     if (!currentToken) {
         const m = window.location.pathname.match(/^\/webhooks\/view\/([^\/]+)\/?$/);
@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', function() {
             window.history.replaceState({}, '', url.toString());
         }
     }
-*/
     const tokenInput = document.getElementById('token-input');
     if (tokenInput) {
         if (!currentToken) currentToken = tokenInput.value || '';
@@ -391,19 +390,14 @@ function createWebhookDetailHTML(webhook) {
 
                 ${Object.keys(headers).length > 0 ? `
                 <div class="detail-section">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h4>Cabeceras HTTP</h4>
-                        <span class="accordion-icon"><img width="24" height="24" src="https://img.icons8.com/windows/32/circled-chevron-right.png" alt="circled-chevron-right"/></span>
-                    </div>
-                    <div class="accordion-content">
-                        <div class="headers-list">
-                            ${Object.entries(headers).map(([name, value]) => `
-                                <div class="header-item">
-                                    <div class="header-name">${name}:</div>
-                                    <div class="header-value">${value}</div>
-                                </div>
-                            `).join('')}
-                        </div>
+                    <h4>Cabeceras HTTP</h4>
+                    <div class="headers-list">
+                        ${Object.entries(headers).map(([name, value]) => `
+                            <div class="header-item">
+                                <div class="header-name">${name}:</div>
+                                <div class="header-value">${value}</div>
+                            </div>
+                        `).join('')}
                     </div>
                 </div>
                 ` : ''}
