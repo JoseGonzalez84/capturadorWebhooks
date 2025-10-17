@@ -27,11 +27,6 @@
                     ?>
                     Endpoint: <code id="webhook-url"><?php echo $displayEndpoint; ?></code>
                     <button onclick="copyToClipboard()"><img width="32" height="32" src="https://img.icons8.com/windows/32/copy-link.png" alt="copy-link"/></button>
-                    <div style="margin-top:8px;">
-                        <label for="token-input">Token:</label>
-                        <input id="token-input" type="text" placeholder="your_token_here" value="<?php echo htmlspecialchars($selectedToken); ?>" />
-                        <button onclick="applyToken()">Aplicar</button>
-                    </div>
                 </div>
             </div>
             
@@ -39,24 +34,28 @@
         </header>
 
         <!-- Panel de gestión de tokens -->
-        <section class="endpoints-panel" style="padding:12px; border-bottom:1px solid #ddd;">
-            <h3>Gestión de Endpoints / Tokens</h3>
-            <div style="display:flex; gap:16px; align-items:flex-start;">
-                <div style="flex:1;">
+        <section>
+            <div class="endpoints-section">
+                <div class="endpoints-panel" style="align-items: flex-start;">
                     <h4>Crear nuevo token</h4>
                     <form id="create-endpoint-form" onsubmit="return false;">
-                        <label>Token (texto único):</label><br/>
-                        <input id="new-endpoint-token" type="text" placeholder="abc123" />
-                        <label>Etiqueta (opcional):</label><br/>
-                        <input id="new-endpoint-label" type="text" placeholder="Descripción" />
-                        <button onclick="createEndpoint()">Crear</button>
+                        <div>
+                            <label for="new-endpoint-token">Token (texto único):</label>
+                            <input id="new-endpoint-token" type="text" placeholder="abc123" /><br/>
+                            <label for="new-endpoint-label">Etiqueta (opcional):</label>
+                            <input id="new-endpoint-label" type="text" placeholder="Descripción" />
+                        </div>
+                        <button onclick="createEndpoint()"><img width="32" height="32" src="https://img.icons8.com/windows/32/save--v1.png" alt="save--v1"/></button>
                     </form>
                 </div>
-                <div style="flex:2;">
-                    <h4>Tokens existentes</h4>
-                    <div id="endpoints-list">
-                        <!-- Lista dinámica de endpoints -->
+                <div class="endpoints-panel" style="flex-direction: column;">
+                    <div class="endpoints-subpanel">
+                        <h4>Tokens existentes</h4>
+                        <div id="endpoints-list">
+                            <!-- Lista dinámica de endpoints -->
+                        </div>
                     </div>
+                    
                 </div>
             </div>
         </section>

@@ -57,8 +57,8 @@ function renderEndpointsList(endpoints) {
                 <div style="color:#888;font-size:12px;">#${ep.id} · ${ep.created_at}</div>
             </div>
             <div style="display:flex; gap:8px;">
-                <button onclick="applyTokenFromList('${encodeURIComponent(JSON.stringify({token:ep.token}))}')">Aplicar</button>
-                <button onclick="deleteEndpoint(${ep.id}, '${ep.token}')">Borrar</button>
+                <button onclick="applyTokenFromList('${encodeURIComponent(JSON.stringify({token:ep.token}))}')"><img width="32" height="32" src="https://img.icons8.com/windows/32/clipboard-approve.png" alt="clipboard-approve"></button>
+                <button onclick="deleteEndpoint(${ep.id}, '${ep.token}')" class="btn-danger"><img width="32" height="32" src="https://img.icons8.com/windows/32/delete-trash.png" alt="delete-trash"></button>
             </div>
         </div>
     `).join('');
