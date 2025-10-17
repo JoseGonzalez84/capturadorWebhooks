@@ -23,7 +23,33 @@ document.addEventListener('DOMContentLoaded', function() {
     setupAutoRefresh();
     // Cargar endpoints disponibles
     loadEndpoints();
+    // Actualizar visual del token actual en el header/accordion
+    const tokenCurrent = document.getElementById('token-current-value');
+    const toggleBtn = document.getElementById('tokens-toggle-button');
+    if (tokenCurrent) tokenCurrent.textContent = currentToken || '-';
+    // Mostrar icono inicial (cerrado)
+    if (toggleBtn) toggleBtn.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/windows/32/circled-chevron-down.png" alt="circled-chevron-down"/>';
 });
+
+// Toggle del acordeón de tokens
+function toggleTokensAccordion() {
+    const content = document.getElementById('tokens-accordion-content');
+    const btn = document.getElementById('tokens-toggle-button');
+    const current = content.style.display;
+    if (current === 'none' || !current) {
+        content.style.display = 'block';
+        if (btn) {
+            btn.classList.add('open');
+            btn.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/windows/32/circled-chevron-up.png" alt="circled-chevron-up"/>';
+        }
+    } else {
+        content.style.display = 'none';
+        if (btn) {
+            btn.classList.remove('open');
+            btn.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/windows/32/circled-chevron-down.png" alt="circled-chevron-down"/>';
+        }
+    }
+}
 
 // Cargar lista de endpoints desde la API
 async function loadEndpoints() {
@@ -32,6 +58,8 @@ async function loadEndpoints() {
         const data = await resp.json();
         if (data.status === 'success') {
             renderEndpointsList(data.data);
+            const tokenCurrent = document.getElementById('token-current-value');
+            if (tokenCurrent) tokenCurrent.textContent = currentToken || '-';
         } else {
             console.error('Error al cargar endpoints:', data.message);
         }
@@ -338,10 +366,10 @@ function createWebhookDetailHTML(webhook) {
                     <div class="payload-container">
                             <div class="payload-toolbar">
                                 <button class="copy-button" onclick="copyPayload(this, ${webhook.id})">
-                                    📋 Copiar
+                                    <img width="24" height="24" src="https://img.icons8.com/windows/32/copy.png" alt="copy"/>
                                 </button>
                                 <button class="view-raw-button" onclick="toggleRaw(${webhook.id}, this)">
-                                    View Raw
+                                    <img width="24" height="24" src="https://img.icons8.com/windows/32/raw.png" alt="raw"/>
                                 </button>
                             </div>
                             <pre class="code-block" id="payload-${webhook.id}" data-mode="${isJSON ? 'highlight' : 'raw'}">${isJSON ? syntaxHighlight(formattedBody) : escapeHtml(formattedBody)}</pre>
@@ -412,15 +440,15 @@ function copyPayload(button, webhookId) {
 
     if (navigator.clipboard) {
         navigator.clipboard.writeText(text).then(() => {
-            // Cambiar texto del botón temporalmente
-            const originalText = button.innerHTML;
-            button.innerHTML = '✓ Copiado';
+            // Cambiar icono del botón temporalmente a check, manteniendo el estilo
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/windows/32/checked--v1.png" alt="copied"/>';
             button.classList.add('copied');
 
             setTimeout(() => {
-                button.innerHTML = originalText;
+                button.innerHTML = originalHTML;
                 button.classList.remove('copied');
-            }, 2000);
+            }, 1500);
         }).catch(err => {
             console.error('Error al copiar:', err);
             alert('No se pudo copiar al portapapeles');
@@ -436,13 +464,14 @@ function copyPayload(button, webhookId) {
 
         try {
             document.execCommand('copy');
-            button.innerHTML = '✓ Copiado';
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/windows/32/checked--v1.png" alt="copied"/>';
             button.classList.add('copied');
 
             setTimeout(() => {
-                button.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/windows/32/copy.png" alt="copy"/> Copiar';
+                button.innerHTML = originalHTML;
                 button.classList.remove('copied');
-            }, 2000);
+            }, 1500);
         } catch (err) {
             alert('No se pudo copiar al portapapeles');
         }
@@ -605,7 +634,8 @@ function toggleRaw(webhookId, button) {
         const text = pre.textContent;
         pre.textContent = text; // ya es texto plano
         pre.setAttribute('data-mode', 'raw');
-        button.textContent = 'View Highlight';
+        // Cambiar icono del botón a indicate highlight is available (use an eye icon for raw and a code icon for highlight)
+        button.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/windows/32/show-property.png" alt="view-raw"/>';
     } else {
         // Cambiar a highlighted: intentar parsear JSON y aplicar syntaxHighlight
         const text = pre.textContent;
@@ -614,7 +644,7 @@ function toggleRaw(webhookId, button) {
             const formatted = JSON.stringify(parsed, null, 2);
             pre.innerHTML = syntaxHighlight(formatted);
             pre.setAttribute('data-mode', 'highlight');
-            button.textContent = 'View Raw';
+            button.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/windows/32/raw.png" alt="view-raw"/>';
         } catch (e) {
             // No es JSON válido, simplemente mantener texto
             alert('No es JSON válido para resaltar');

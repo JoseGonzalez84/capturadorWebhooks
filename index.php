@@ -25,40 +25,44 @@
                     $endpointExample = $baseUrl . '/webhooks/';
                     $displayEndpoint = $endpointExample . ($selectedToken ? $selectedToken : 'your_token_here');
                     ?>
-                    Endpoint: <code id="webhook-url"><?php echo $displayEndpoint; ?></code>
-                    <button onclick="copyToClipboard()"><img width="24" height="24" src="https://img.icons8.com/windows/32/copy-link.png" alt="copy-link"/></button>
-                </div>
-            </div>
-            
-            
-        </header>
 
-        <!-- Panel de gestión de tokens -->
-        <section>
-            <div class="endpoints-section">
-                <div class="endpoints-panel" style="align-items: flex-start;">
-                    <h4>Crear nuevo token</h4>
-                    <form id="create-endpoint-form" onsubmit="return false;">
-                        <div>
-                            <label for="new-endpoint-token">Token (texto único):</label>
-                            <input id="new-endpoint-token" type="text" placeholder="abc123" /><br/>
-                            <label for="new-endpoint-label">Etiqueta (opcional):</label>
-                            <input id="new-endpoint-label" type="text" placeholder="Descripción" />
+                    <div class="tokens-accordion" id="tokens-accordion">
+                        <div class="tokens-header" id="tokens-accordion-header">
+                            <div class="tokens-left">                                
+                                <strong><span id="token-current-value"><?php echo htmlspecialchars($selectedToken); ?></span></strong>
+                            </div>
+                            <div class="tokens-center">
+                                <code id="token-endpoint-display"><?php echo $displayEndpoint; ?></code>
+                            </div>
+                            <div class="tokens-right">
+                                <button id="tokens-toggle-button" onclick="toggleTokensAccordion()">Abrir</button>
+                            </div>
                         </div>
-                        <button onclick="createEndpoint()"><img width="24" height="24" src="https://img.icons8.com/windows/32/save--v1.png" alt="save--v1"/></button>
-                    </form>
-                </div>
-                <div class="endpoints-panel" style="flex-direction: column;">
-                    <div class="endpoints-subpanel">
-                        <h4>Tokens existentes</h4>
-                        <div id="endpoints-list">
-                            <!-- Lista dinámica de endpoints -->
+
+                        <div class="tokens-content" id="tokens-accordion-content" style="display:none;">
+                            <div style="display:flex; gap:16px; align-items:flex-start;">
+                                <div style="flex:1;">
+                                    <h4>Crear nuevo token</h4>
+                                    <form id="create-endpoint-form" onsubmit="return false;">
+                                        <label>Token (texto único):</label><br/>
+                                        <input id="new-endpoint-token" type="text" placeholder="abc123" />
+                                        <label>Etiqueta (opcional):</label><br/>
+                                        <input id="new-endpoint-label" type="text" placeholder="Descripción" />
+                                        <button onclick="createEndpoint()">Crear</button>
+                                    </form>
+                                </div>
+                                <div style="flex:2;">
+                                    <h4>Tokens existentes</h4>
+                                    <div id="endpoints-list">
+                                        <!-- Lista dinámica de endpoints -->
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    
                 </div>
             </div>
-        </section>
+        </header>
 
         <div class="stats">
             <div class="controls">

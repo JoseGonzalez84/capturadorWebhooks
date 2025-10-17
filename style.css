@@ -44,7 +44,7 @@ header p {
 }
 
 #header-container-left, #header-container-right {
-    align-items: center;
+    align-items: flex-start;
     display: flex;
 }
 
@@ -450,6 +450,65 @@ button:hover {
     background: rgba(255,255,255,0.04);
 }
 
+/* Tokens accordion */
+.tokens-accordion {
+    border-radius: 8px;
+    padding: 8px;
+    display: block;
+}
+
+.tokens-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.tokens-left { flex: 1; color: #334155; }
+.tokens-center { flex: 2; text-align: center; }
+.tokens-right { flex: 0 0 auto; }
+
+.tokens-center code { background: transparent; padding: 4px 8px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; }
+
+.tokens-content { margin-top: 12px; }
+
+/* Toggle button icon styling: smooth rotation and white-stroke appearance */
+#tokens-toggle-button {
+    background: transparent;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#tokens-toggle-button img {
+    width: 24px;
+    height: 24px;
+    display: block;
+    transition: transform 0.25s ease, filter 0.25s ease, opacity 0.2s ease;
+    /* For externally-hosted PNG/SVG, force a white-ish stroke/look */
+    filter: brightness(0) invert(1);
+    opacity: 0.95;
+}
+
+#tokens-toggle-button.open img {
+    transform: rotate(180deg);
+    /* add a subtle glow when open */
+    filter: brightness(0) invert(1) drop-shadow(0 0 3px rgba(255,255,255,0.08));
+}
+
+/* Endpoints list: mostrar máximo 3 items y hacer scroll si hay más */
+#endpoints-list {
+    max-height: calc(3 * 72px); /* aprox 72px por item, ajustar si necesario */
+    overflow-y: auto;
+    border: 1px solid #e2e8f0;
+    padding: 8px;
+    border-radius: 6px;
+    background: #fff;
+}
+
 .accordion-header h4 {
     margin: 0;
     flex-grow: 1;
@@ -524,35 +583,28 @@ button:hover {
 }
 
 .copy-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: #48bb78;
-    color: #EEEEEE;
+    /* Let the toolbar position the button; use inline-flex so buttons sit side-by-side */
+    position: relative;
+    background: transparent;
+    color: #e6eef6;
     border: none;
-    padding: 8px 15px;
+    padding: 6px;
     border-radius: 6px;
     cursor: pointer;
     font-size: 12px;
-    transition: all 0.3s ease;
+    transition: transform 0.18s ease, background 0.18s ease;
     z-index: 10;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
 }
 
-.copy-button:hover {
-    background: #38a169;
+.payload-toolbar button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
 }
 
 .copy-button.copied {
-    background: #4299e1;
-}
-
-.copy-button:active {
-    transform: translateY(0);
+    background: rgba(66,153,225,0.14);
 }
 
 .headers-list {
