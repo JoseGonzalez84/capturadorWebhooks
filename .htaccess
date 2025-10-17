@@ -5,6 +5,15 @@ RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
+## Soporte para acceder al front con /webhooks/view/{token}
+## Mapea /webhooks/view/pruebaJose -> /webhooks/?token=pruebaJose (mostrará index.php con token)
+## Esta regla debe ir antes de la que mapea /webhooks/{token} a webhook.php,
+## para evitar interpretar "view" como un token entrante para el webhook receptor.
+RewriteRule ^webhooks/view/([^/]+)/?$ /webhooks/?token=$1 [L,QSA]
+
+## Soporte para acceder al front con /webhooks/view/ (sin token) -> /webhooks/
+RewriteRule ^webhooks/view/?$ /webhooks/ [L,QSA]
+
 ## Si este .htaccess está en la raíz del sitio y la app vive bajo /webhooks
 ## (p. ej. https://mi-dominio/webhooks/prueba), mapea /webhooks/{token} -> /webhook.php?token={token}
 RewriteRule ^webhooks/([^/]+)/?$ /webhook.php?token=$1 [L,QSA]
@@ -15,4 +24,10 @@ RewriteBase /webhooks/
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
+## Si este .htaccess está dentro de la carpeta /webhooks (otra forma de desplegar),
+## añadir reglas relativas para soportar /webhooks/view/<token> => index.php?token=<token>
+RewriteRule ^view/([^/]+)/?$ index.php?token=$1 [L,QSA]
+RewriteRule ^view/?$ index.php [L,QSA]
+
+## Regla que mapea un segmento directo al receptor de webhooks
 RewriteRule ^([^/]+)/?$ webhook.php?token=$1 [L,QSA]

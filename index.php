@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <?php
+    // Calcular base href dinámicamente según la ubicación del script
+    $scriptDir = dirname($_SERVER['SCRIPT_NAME']);
+    if ($scriptDir === '/' || $scriptDir === '\\') {
+        $scriptDir = '';
+    }
+    $baseHref = $scriptDir . '/';
+    ?>
+    <base href="<?php echo htmlspecialchars($baseHref, ENT_QUOTES); ?>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Capturador de Webhooks</title>

@@ -9,10 +9,22 @@ let currentToken = '';
 
 // Inicializar la aplicación cuando se carga la página
 document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar token desde querystring o input
+    // Inicializar token desde querystring, ruta /webhooks/view/<token> o input
     const urlParams = new URLSearchParams(window.location.search);
     currentToken = urlParams.get('token') || '';
-
+/*
+    // Si no viene por querystring, intentar extraerlo de la ruta /webhooks/view/<token>
+    if (!currentToken) {
+        const m = window.location.pathname.match(/^\/webhooks\/view\/([^\/]+)\/?$/);
+        if (m) {
+            currentToken = decodeURIComponent(m[1]);
+            // Actualizar la querystring en el navegador para mantener compatibilidad con el resto del app
+            const url = new URL(window.location.href);
+            url.searchParams.set('token', currentToken);
+            window.history.replaceState({}, '', url.toString());
+        }
+    }
+*/
     const tokenInput = document.getElementById('token-input');
     if (tokenInput) {
         if (!currentToken) currentToken = tokenInput.value || '';
@@ -84,7 +96,7 @@ function renderEndpointsList(endpoints) {
                 <div style="color:#888;font-size:12px;"> ${ep.label ? escapeHtml(ep.label) + ' · ' : ''}${ep.created_at}</div>
             </div>
             <div style="display:flex; gap:8px;">
-                <button onclick="applyTokenFromList('${encodeURIComponent(JSON.stringify({token:ep.token}))}')"><img width="24" height="24" src="https://img.icons8.com/windows/32/clipboard-approve.png" alt="clipboard-approve"></button>
+                <a class="endpoint-open-link" href="/webhooks/view/${encodeURIComponent(ep.token)}" title="Abrir ${escapeHtml(ep.token)}"><img width="24" height="24" src="https://img.icons8.com/windows/32/clipboard-approve.png" alt="open-token"/></a>
                 <button onclick="deleteEndpoint(${ep.id}, '${ep.token}')" class="btn-danger"><img width="24" height="24" src="https://img.icons8.com/windows/32/delete-trash.png" alt="delete-trash"></button>
             </div>
         </div>

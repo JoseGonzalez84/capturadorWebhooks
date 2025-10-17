@@ -89,6 +89,10 @@ button {
     box-shadow: 0 2px 2px rgba(102, 126, 234, 0.4);
 }
 
+button img {
+    filter: brightness(0) invert(1);
+}
+
 button:hover {
     background: #5a6fd8;
 }
@@ -448,6 +452,7 @@ button:hover {
 
 .payload-toolbar .view-raw-button {
     background: rgba(255,255,255,0.04);
+    filter: brightness(0) invert(1);
 }
 
 /* Tokens accordion */
@@ -474,7 +479,6 @@ button:hover {
 
 /* Toggle button icon styling: smooth rotation and white-stroke appearance */
 #tokens-toggle-button {
-    background: transparent;
     border: none;
     padding: 4px;
     cursor: pointer;
@@ -585,7 +589,7 @@ button:hover {
 .copy-button {
     /* Let the toolbar position the button; use inline-flex so buttons sit side-by-side */
     position: relative;
-    background: transparent;
+    filter: brightness(0) invert(1);
     color: #e6eef6;
     border: none;
     padding: 6px;
