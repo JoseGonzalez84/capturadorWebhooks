@@ -173,7 +173,7 @@ button:hover {
 .webhooks-list h3 {
     background: #00ADB5;
     color: #EEEEEE;
-    padding: 20px;
+    padding: 10px 10px;
     margin: 0;
     font-size: 1.2em;
 }
@@ -325,9 +325,9 @@ button:hover {
 }
 
 .webhook-header {
-    background: #f8f9fa;
-    padding: 20px;
-    border-bottom: 1px solid #e9ecef;
+    background: #00ADB5;
+    color: #EEEEEE;
+    padding: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -340,10 +340,10 @@ button:hover {
     border-radius: 6px;
     font-weight: bold;
     font-size: 12px;
-    margin-right: 15px;
+    margin-right: 10px;
 }
 
-.method-GET { background: #38a169; color: #EEEEEE; }
+.method-GET { background: #007e3b; color: #EEEEEE; }
 .method-POST { background: #3182ce; color: #EEEEEE; }
 .method-PUT { background: #d69e2e; color: #EEEEEE; }
 .method-DELETE { background: #e53e3e; color: #EEEEEE; }
@@ -351,12 +351,10 @@ button:hover {
 
 .webhook-url {
     font-family: 'JetBrains Mono', monospace;
-    color: #2d3748;
     word-break: break-all;
 }
 
 .webhook-timestamp {
-    color: #666;
     font-size: 0.9em;
 }
 
@@ -396,6 +394,60 @@ button:hover {
 
 .accordion-header:hover {
     background: #f8f9fa;
+}
+
+/* Estilos para bloques de código / payload JSON */
+.code-block {
+    font-family: 'JetBrains Mono', monospace;
+    background: #0f1720; /* oscuro */
+    color: #e6eef6;
+    padding: 12px;
+    border-radius: 8px;
+    overflow: auto;
+    max-height: 60vh;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre; /* preservar saltos de línea y espacios */
+    border: 1px solid rgba(255,255,255,0.04);
+}
+
+/* JSON syntax highlight helpers (applied by script.js) */
+.json-key { color: #79b8ff; }
+.json-string { color: #ffb86b; }
+.json-number { color: #7ee787; }
+.json-boolean { color: #4b9fff; }
+.json-null { color: #c792ea; }
+
+/* Copied state for copy buttons near payload */
+.copy-button.copied {
+    background: #2f855a;
+    color: #fff;
+}
+
+.payload-container {
+    position: relative;
+}
+
+.payload-toolbar {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+
+.payload-toolbar button {
+    padding: 6px 8px;
+    font-size: 13px;
+    background: rgba(255,255,255,0.06);
+    color: #e6eef6;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.04);
+}
+
+.payload-toolbar .view-raw-button {
+    background: rgba(255,255,255,0.04);
 }
 
 .accordion-header h4 {
@@ -465,26 +517,6 @@ button:hover {
     position: relative;
 }
 
-/* Sintaxis JSON coloreada */
-.json-key {
-    color: #79b8ff;
-}
-
-.json-string {
-    color: #9ecbff;
-}
-
-.json-number {
-    color: #79c0ff;
-}
-
-.json-boolean {
-    color: #ffab70;
-}
-
-.json-null {
-    color: #f97583;
-}
 
 /* Contenedor del payload con botón */
 .payload-container {
@@ -590,6 +622,13 @@ button:hover {
 
 #endpoints-list {
     width: 100%;
+}
+
+.endpoint-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgb(214 214 214);
 }
 
 /* Responsive */

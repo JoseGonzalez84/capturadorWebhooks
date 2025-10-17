@@ -50,15 +50,14 @@ function renderEndpointsList(endpoints) {
     }
 
     container.innerHTML = endpoints.map(ep => `
-        <div class="endpoint-item" style="display:flex; align-items:center; justify-content:space-between; padding:6px; border-bottom:1px solid #eee;">
+        <div class="endpoint-item">
             <div>
-                <strong>${escapeHtml(ep.token)}</strong>
-                ${ep.label ? '<span style="margin-left:8px;color:#666;">' + escapeHtml(ep.label) + '</span>' : ''}
-                <div style="color:#888;font-size:12px;">#${ep.id} · ${ep.created_at}</div>
+                #${ep.id} <strong>${escapeHtml(ep.token)}</strong>
+                <div style="color:#888;font-size:12px;"> ${ep.label ? escapeHtml(ep.label) + ' · ' : ''}${ep.created_at}</div>
             </div>
             <div style="display:flex; gap:8px;">
-                <button onclick="applyTokenFromList('${encodeURIComponent(JSON.stringify({token:ep.token}))}')"><img width="32" height="32" src="https://img.icons8.com/windows/32/clipboard-approve.png" alt="clipboard-approve"></button>
-                <button onclick="deleteEndpoint(${ep.id}, '${ep.token}')" class="btn-danger"><img width="32" height="32" src="https://img.icons8.com/windows/32/delete-trash.png" alt="delete-trash"></button>
+                <button onclick="applyTokenFromList('${encodeURIComponent(JSON.stringify({token:ep.token}))}')"><img width="24" height="24" src="https://img.icons8.com/windows/32/clipboard-approve.png" alt="clipboard-approve"></button>
+                <button onclick="deleteEndpoint(${ep.id}, '${ep.token}')" class="btn-danger"><img width="24" height="24" src="https://img.icons8.com/windows/32/delete-trash.png" alt="delete-trash"></button>
             </div>
         </div>
     `).join('');
@@ -333,11 +332,28 @@ function createWebhookDetailHTML(webhook) {
                     </div>
                 </div>
 
+                ${webhook.body ? `
+                <div class="detail-section">
+                    <h4>Payload / Body</h4>
+                    <div class="payload-container">
+                            <div class="payload-toolbar">
+                                <button class="copy-button" onclick="copyPayload(this, ${webhook.id})">
+                                    📋 Copiar
+                                </button>
+                                <button class="view-raw-button" onclick="toggleRaw(${webhook.id}, this)">
+                                    View Raw
+                                </button>
+                            </div>
+                            <pre class="code-block" id="payload-${webhook.id}" data-mode="${isJSON ? 'highlight' : 'raw'}">${isJSON ? syntaxHighlight(formattedBody) : escapeHtml(formattedBody)}</pre>
+                        </div>
+                </div>
+                ` : '<div class="detail-section"><p><em>Sin contenido en el body</em></p></div>'}
+
                 ${Object.keys(headers).length > 0 ? `
                 <div class="detail-section">
                     <div class="accordion-header" onclick="toggleAccordion(this)">
                         <h4>Cabeceras HTTP</h4>
-                        <span class="accordion-icon"><img width="32" height="32" src="https://img.icons8.com/windows/32/circled-chevron-right.png" alt="circled-chevron-right"/></span>
+                        <span class="accordion-icon"><img width="24" height="24" src="https://img.icons8.com/windows/32/circled-chevron-right.png" alt="circled-chevron-right"/></span>
                     </div>
                     <div class="accordion-content">
                         <div class="headers-list">
@@ -352,17 +368,6 @@ function createWebhookDetailHTML(webhook) {
                 </div>
                 ` : ''}
 
-                ${webhook.body ? `
-                <div class="detail-section">
-                    <h4>Payload / Body</h4>
-                    <div class="payload-container">
-                        <button class="copy-button" onclick="copyPayload(this, ${webhook.id})">
-                            📋 Copiar
-                        </button>
-                        <div class="code-block" id="payload-${webhook.id}">${isJSON ? syntaxHighlight(formattedBody) : escapeHtml(formattedBody)}</div>
-                    </div>
-                </div>
-                ` : '<div class="detail-section"><p><em>Sin contenido en el body</em></p></div>'}
             </div>
         </div>
     `;
@@ -435,7 +440,7 @@ function copyPayload(button, webhookId) {
             button.classList.add('copied');
 
             setTimeout(() => {
-                button.innerHTML = '<img width="32" height="32" src="https://img.icons8.com/windows/32/copy.png" alt="copy"/> Copiar';
+                button.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/windows/32/copy.png" alt="copy"/> Copiar';
                 button.classList.remove('copied');
             }, 2000);
         } catch (err) {
@@ -586,4 +591,33 @@ function applyToken() {
     // Recargar registros para el token seleccionado
     lastUpdateTime = '';
     loadWebhooks();
+}
+
+// Alternar vista raw / highlighted para el payload
+function toggleRaw(webhookId, button) {
+    const pre = document.getElementById('payload-' + webhookId);
+    if (!pre) return;
+
+    const currentMode = pre.getAttribute('data-mode') || 'highlight';
+
+    if (currentMode === 'highlight') {
+        // Cambiar a raw: quitar spans y mostrar texto plano
+        const text = pre.textContent;
+        pre.textContent = text; // ya es texto plano
+        pre.setAttribute('data-mode', 'raw');
+        button.textContent = 'View Highlight';
+    } else {
+        // Cambiar a highlighted: intentar parsear JSON y aplicar syntaxHighlight
+        const text = pre.textContent;
+        try {
+            const parsed = JSON.parse(text);
+            const formatted = JSON.stringify(parsed, null, 2);
+            pre.innerHTML = syntaxHighlight(formatted);
+            pre.setAttribute('data-mode', 'highlight');
+            button.textContent = 'View Raw';
+        } catch (e) {
+            // No es JSON válido, simplemente mantener texto
+            alert('No es JSON válido para resaltar');
+        }
+    }
 }

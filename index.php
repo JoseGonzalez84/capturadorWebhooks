@@ -26,7 +26,7 @@
                     $displayEndpoint = $endpointExample . ($selectedToken ? $selectedToken : 'your_token_here');
                     ?>
                     Endpoint: <code id="webhook-url"><?php echo $displayEndpoint; ?></code>
-                    <button onclick="copyToClipboard()"><img width="32" height="32" src="https://img.icons8.com/windows/32/copy-link.png" alt="copy-link"/></button>
+                    <button onclick="copyToClipboard()"><img width="24" height="24" src="https://img.icons8.com/windows/32/copy-link.png" alt="copy-link"/></button>
                 </div>
             </div>
             
@@ -45,7 +45,7 @@
                             <label for="new-endpoint-label">Etiqueta (opcional):</label>
                             <input id="new-endpoint-label" type="text" placeholder="Descripción" />
                         </div>
-                        <button onclick="createEndpoint()"><img width="32" height="32" src="https://img.icons8.com/windows/32/save--v1.png" alt="save--v1"/></button>
+                        <button onclick="createEndpoint()"><img width="24" height="24" src="https://img.icons8.com/windows/32/save--v1.png" alt="save--v1"/></button>
                     </form>
                 </div>
                 <div class="endpoints-panel" style="flex-direction: column;">
@@ -73,7 +73,7 @@
                     <span class="stat-value" id="last-update">-</span>
                 </div>
                 <div>
-                    <button onclick="refreshWebhooks()"><img width="32" height="32" src="https://img.icons8.com/windows/32/available-updates.png" alt="available-updates"/></button>
+                    <button onclick="refreshWebhooks()"><img width="24" height="24" src="https://img.icons8.com/windows/32/available-updates.png" alt="available-updates"/></button>
                 </div>
             </div>
             <div class="stat">
@@ -82,7 +82,7 @@
                     <span class="stat-value" id="total-count">0</span>
                 </div>
                 <div>
-                    <button onclick="clearWebhooks()" class="btn-danger"><img width="32" height="32" src="https://img.icons8.com/windows/32/delete-trash.png" alt="delete-trash"/></button>
+                    <button onclick="clearWebhooks()" class="btn-danger"><img width="24" height="24" src="https://img.icons8.com/windows/32/delete-trash.png" alt="delete-trash"/></button>
                 </div>
                 
             </div>
@@ -95,14 +95,14 @@
                     <!-- Lista de webhooks se cargará aquí -->
                 </div>
                 <div id="no-webhooks" style="display: none;">
-                    <p><img width="32" height="32" src="https://img.icons8.com/windows/32/mailbox-closed-flag-down--v1.png" alt="mailbox-closed-flag-down--v1"/> No hay webhooks aún.</p>
+                    <p><img width="24" height="24" src="https://img.icons8.com/windows/32/mailbox-closed-flag-down--v1.png" alt="mailbox-closed-flag-down--v1"/> No hay webhooks aún.</p>
                 </div>
             </div>
 
             <div class="webhook-detail">
                 <div id="detail-placeholder">
                     <div class="placeholder-content">
-                        <h3><img width="32" height="32" src="https://img.icons8.com/windows/32/hand-left.png" alt="hand-left"/> Selecciona un registro</h3>
+                        <h3><img width="24" height="24" src="https://img.icons8.com/windows/32/hand-left.png" alt="hand-left"/> Selecciona un registro</h3>
                         <p>Haz clic en cualquier registro de la izquierda para ver sus detalles completos</p>
                     </div>
                 </div>
@@ -113,7 +113,7 @@
         </div>
 
         <div id="loading" style="display: none;">
-            <p><img width="32" height="32" src="https://img.icons8.com/windows/32/hourglass--v1.png" alt="hourglass--v1"/> Cargando webhooks...</p>
+            <p><img width="24" height="24" src="https://img.icons8.com/windows/32/hourglass--v1.png" alt="hourglass--v1"/> Cargando webhooks...</p>
         </div>
     </div>
 
