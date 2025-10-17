@@ -18,10 +18,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const m = window.location.pathname.match(/^\/webhooks\/view\/([^\/]+)\/?$/);
         if (m) {
             currentToken = decodeURIComponent(m[1]);
-            // Actualizar la querystring en el navegador para mantener compatibilidad con el resto del app
-            const url = new URL(window.location.href);
-            url.searchParams.set('token', currentToken);
-            window.history.replaceState({}, '', url.toString());
+            // Mantener la URL limpia: usar la ruta /webhooks/view/<token> sin añadir ?token=
+            const cleanPath = window.location.pathname.replace(/\/+$/, '');
+            window.history.replaceState({}, '', cleanPath + (window.location.hash || ''));
         }
     }
     const tokenInput = document.getElementById('token-input');
@@ -608,13 +607,16 @@ function applyToken() {
     currentToken = tokenInput ? tokenInput.value.trim() : '';
 
     // Actualizar la URL en el navegador (sin recargar)
-    const url = new URL(window.location.href);
+    // Actualizar la URL en el navegador (sin recargar): usar /webhooks/view/<token> para mantener limpio el URL
+    const origin = window.location.origin || (window.location.protocol + '//' + window.location.host);
     if (currentToken) {
-        url.searchParams.set('token', currentToken);
+        const newPath = '/webhooks/view/' + encodeURIComponent(currentToken);
+        window.history.replaceState({}, '', origin + newPath + (window.location.hash || ''));
     } else {
-        url.searchParams.delete('token');
+        // volver a la vista principal sin token
+        const newPath = '/webhooks/';
+        window.history.replaceState({}, '', origin + newPath + (window.location.hash || ''));
     }
-    window.history.replaceState({}, '', url.toString());
 
     // Actualizar visual del endpoint
     const webhookUrlEl = document.getElementById('webhook-url');
