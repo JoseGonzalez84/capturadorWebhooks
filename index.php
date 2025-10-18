@@ -1,3 +1,127 @@
+<?php
+// Protección simple del front con contraseña (session-based)
+session_start();
+
+// Intentar cargar composer autoload y luego .env usando phpdotenv si está disponible
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+}
+if (class_exists('Dotenv\Dotenv')) {
+    try {
+        $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+        $dotenv->safeLoad();
+    } catch (Exception $e) {
+        // noop
+    }
+}
+
+// Fallback: si no se cargó ADMIN_PASSWORD desde entorno, intentar parsear .env manualmente
+$adminPassword = getenv('ADMIN_PASSWORD') ?: ($_ENV['ADMIN_PASSWORD'] ?? null);
+$adminPasswordHash = getenv('ADMIN_PASSWORD_HASH') ?: ($_ENV['ADMIN_PASSWORD_HASH'] ?? null);
+if (empty($adminPassword) && empty($adminPasswordHash)) {
+    $envFile = __DIR__ . '/.env';
+    if (file_exists($envFile) && is_readable($envFile)) {
+        $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === '' || $line[0] === '#') continue;
+            // key=value parsing, allow quotes
+            if (preg_match('/^([A-Z0-9_]+)\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^#]*))/i', $line, $m)) {
+                $k = $m[1];
+                $v = isset($m[2]) && $m[2] !== '' ? $m[2] : (isset($m[3]) && $m[3] !== '' ? $m[3] : (isset($m[4]) ? trim($m[4]) : ''));
+                if ($k === 'ADMIN_PASSWORD' && $v !== '') {
+                    $adminPassword = $v;
+                    putenv('ADMIN_PASSWORD=' . $v);
+                    $_ENV['ADMIN_PASSWORD'] = $v;
+                }
+                if ($k === 'ADMIN_PASSWORD_HASH' && $v !== '') {
+                    $adminPasswordHash = $v;
+                    putenv('ADMIN_PASSWORD_HASH=' . $v);
+                    $_ENV['ADMIN_PASSWORD_HASH'] = $v;
+                }
+            }
+        }
+    }
+}
+
+// Manejar logout rápido
+if (isset($_GET['logout'])) {
+    session_unset();
+    session_destroy();
+    header('Location: ' . ($_SERVER['SCRIPT_NAME'] ?? '/'));
+    exit;
+}
+
+// Obtener credenciales desde entorno (usar .env o variables de entorno)
+$adminPassword = getenv('ADMIN_PASSWORD') ?: ($_ENV['ADMIN_PASSWORD'] ?? null);
+$adminPasswordHash = getenv('ADMIN_PASSWORD_HASH') ?: ($_ENV['ADMIN_PASSWORD_HASH'] ?? null);
+
+$loginError = '';
+// Procesar intento de login
+if (!isset($_SESSION['is_authenticated'])) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['admin_password'])) {
+        $pw = $_POST['admin_password'];
+        $ok = false;
+        if (!empty($adminPasswordHash)) {
+            // comprobar hash (password_hash) si se proporcionó
+            if (password_verify($pw, $adminPasswordHash)) $ok = true;
+        } elseif (!empty($adminPassword)) {
+            if (hash_equals($adminPassword, $pw)) $ok = true;
+        } else {
+            // Si no hay contraseña configurada, bloquear acceso y mostrar mensaje
+            $loginError = 'No hay contraseña configurada. Configure ADMIN_PASSWORD o ADMIN_PASSWORD_HASH.';
+        }
+
+        if ($ok) {
+            $_SESSION['is_authenticated'] = true;
+            // Redirigir para limpiar POST
+            header('Location: ' . ($_SERVER['REQUEST_URI']));
+            exit;
+        } else {
+            if (empty($loginError)) $loginError = 'Contraseña incorrecta.';
+        }
+    }
+
+    // Mostrar formulario de login y detener la ejecución del front
+    ?>
+    <!doctype html>
+    <html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Login - Capturador de Webhooks</title>
+        <style>
+            body { font-family: Arial, Helvetica, sans-serif; background: #f4f6f8; display:flex; align-items:center; justify-content:center; height:100vh; margin:0 }
+            .login-box { background:#fff; padding:24px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.08); width:360px }
+            label { display:block; margin-bottom:8px; color:#333 }
+            input[type=password] { width:100%; padding:10px; margin-bottom:12px; border:1px solid #ddd; border-radius:6px }
+            button { background:#667eea; color:#fff; padding:10px 14px; border:none; border-radius:6px; cursor:pointer }
+            .error { color:#c53030; margin-bottom:12px }
+            .info { font-size:12px; color:#666; margin-top:8px }
+        </style>
+    </head>
+    <body>
+        <div class="login-box">
+            <h2>Acceso</h2>
+            <?php if ($loginError): ?>
+                <div class="error"><?php echo htmlspecialchars($loginError); ?></div>
+            <?php endif; ?>
+            <form method="post">
+                <label for="admin_password">Contraseña:</label>
+                <input id="admin_password" name="admin_password" type="password" autocomplete="off" />
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <button type="submit">Entrar</button>
+                </div>
+            </form>
+            <div class="info">Protege el panel con la variable de entorno <code>ADMIN_PASSWORD</code> o <code>ADMIN_PASSWORD_HASH</code>.</div>
+        </div>
+    </body>
+    </html>
+    <?php
+    exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
