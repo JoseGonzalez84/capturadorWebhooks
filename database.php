@@ -71,6 +71,16 @@ class Database
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )";
             self::$connection->exec($sql2);
+            // Tabla para respuestas personalizadas por endpoint
+            $sql3 = "CREATE TABLE IF NOT EXISTS endpoint_responses (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                token VARCHAR(255) UNIQUE,
+                status_code INTEGER DEFAULT 200,
+                content_type VARCHAR(100) DEFAULT 'application/json',
+                body TEXT,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )";
+            self::$connection->exec($sql3);
         } else {
             $sql = "CREATE TABLE IF NOT EXISTS webhook_logs (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -110,6 +120,20 @@ class Database
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                 )";
                 self::$connection->exec($sql2);
+            // Tabla para respuestas personalizadas por endpoint (MySQL)
+            try {
+                $sql3 = "CREATE TABLE IF NOT EXISTS endpoint_responses (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    token VARCHAR(255) UNIQUE,
+                    status_code INT DEFAULT 200,
+                    content_type VARCHAR(100) DEFAULT 'application/json',
+                    body TEXT,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                )";
+                self::$connection->exec($sql3);
+            } catch (Exception $e) {
+                // ignore
+            }
             } catch (Exception $e) {
                 // ignorar errores de creación
             }
@@ -232,6 +256,56 @@ class Database
         $db = self::getConnection();
         $sql = "DELETE FROM endpoints WHERE token = :token";
         $stmt = $db->prepare($sql);
+        return $stmt->execute([':token' => $token]);
+    }
+
+    // Respuestas personalizadas por token
+    public static function getResponseByToken($token)
+    {
+        $db = self::getConnection();
+        $sql = "SELECT status_code, content_type, body FROM endpoint_responses WHERE token = :token LIMIT 1";
+        $stmt = $db->prepare($sql);
+        $stmt->execute([':token' => $token]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public static function upsertResponse($token, $status_code, $content_type, $body)
+    {
+        $db = self::getConnection();
+        // Intentar UPDATE, si no existe INSERT
+        try {
+            $sql = "INSERT INTO endpoint_responses (token, status_code, content_type, body) VALUES (:token, :status_code, :content_type, :body)
+                    ON CONFLICT(token) DO UPDATE SET status_code = :status_code_u, content_type = :content_type_u, body = :body_u, updated_at = CURRENT_TIMESTAMP";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([
+                ':token' => $token,
+                ':status_code' => $status_code,
+                ':content_type' => $content_type,
+                ':body' => $body,
+                ':status_code_u' => $status_code,
+                ':content_type_u' => $content_type,
+                ':body_u' => $body
+            ]);
+            return true;
+        } catch (Exception $e) {
+            // Si DB no soporta ON CONFLICT (MySQL), usar fallback: try update then insert
+            try {
+                $upd = $db->prepare("UPDATE endpoint_responses SET status_code = :status_code, content_type = :content_type, body = :body, updated_at = CURRENT_TIMESTAMP WHERE token = :token");
+                $upd->execute([':status_code' => $status_code, ':content_type' => $content_type, ':body' => $body, ':token' => $token]);
+                if ($upd->rowCount() > 0) return true;
+                $ins = $db->prepare("INSERT INTO endpoint_responses (token, status_code, content_type, body) VALUES (:token, :status_code, :content_type, :body)");
+                $ins->execute([':token' => $token, ':status_code' => $status_code, ':content_type' => $content_type, ':body' => $body]);
+                return true;
+            } catch (Exception $e2) {
+                return false;
+            }
+        }
+    }
+
+    public static function deleteResponseByToken($token)
+    {
+        $db = self::getConnection();
+        $stmt = $db->prepare("DELETE FROM endpoint_responses WHERE token = :token");
         return $stmt->execute([':token' => $token]);
     }
 }

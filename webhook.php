@@ -59,7 +59,22 @@ try {
         $id = Database::logWebhook($webhook_data);
     }
 
-    // Respuesta exitosa
+    // Intentar obtener respuesta personalizada para el token
+    if ($token) {
+        $respCfg = Database::getResponseByToken($token);
+        if ($respCfg && isset($respCfg['status_code'])) {
+            $code = (int)$respCfg['status_code'];
+            $ctype = $respCfg['content_type'] ?? 'application/json';
+            $respBody = $respCfg['body'] ?? '';
+
+            http_response_code($code);
+            header('Content-Type: ' . $ctype);
+            echo $respBody;
+            exit;
+        }
+    }
+
+    // Respuesta por defecto si no hay configuración personalizada
     http_response_code(200);
     header('Content-Type: application/json');
     echo json_encode([

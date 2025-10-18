@@ -95,6 +95,7 @@ function renderEndpointsList(endpoints) {
             </div>
             <div style="display:flex; gap:8px;">
                 <a class="endpoint-open-link" href="/webhooks/view/${encodeURIComponent(ep.token)}" title="Abrir ${escapeHtml(ep.token)}"><img width="24" height="24" src="https://img.icons8.com/windows/32/clipboard-approve.png" alt="open-token"/></a>
+                <button onclick="openResponseModal('${escapeHtml(ep.token)}')" title="Configurar respuesta"><img width="24" height="24" src="https://img.icons8.com/windows/32/settings.png" alt="settings"/></button>
                 <button onclick="deleteEndpoint(${ep.id}, '${ep.token}')" class="btn-danger"><img width="24" height="24" src="https://img.icons8.com/windows/32/delete-trash.png" alt="delete-trash"></button>
             </div>
         </div>
@@ -110,6 +111,83 @@ function applyTokenFromList(encoded) {
         applyToken();
     } catch (e) {
         console.error('Error al aplicar token desde lista', e);
+    }
+}
+
+// Modal de configuración de respuesta
+function openResponseModal(token) {
+    const modal = document.getElementById('response-modal');
+    const tokenName = document.getElementById('modal-token-name');
+    tokenName.textContent = token;
+    modal.style.display = 'block';
+    // cargar configuración actual
+    loadResponseConfig(token);
+}
+
+function closeResponseModal() {
+    const modal = document.getElementById('response-modal');
+    modal.style.display = 'none';
+}
+
+async function loadResponseConfig(token) {
+    try {
+        const resp = await fetch('api.php?action=get_response&token=' + encodeURIComponent(token));
+        const data = await resp.json();
+        if (data.status === 'success') {
+            const cfg = data.data || {};
+            document.getElementById('modal-token-name').textContent = token;
+            document.getElementById('resp-status').value = cfg.status_code || 200;
+            document.getElementById('resp-ctype').value = cfg.content_type || 'application/json';
+            document.getElementById('resp-body').value = cfg.body || '';
+        } else {
+            console.error('Error al cargar config:', data.message);
+        }
+    } catch (err) {
+        console.error('Error de red al cargar config:', err);
+    }
+}
+
+async function saveResponseConfig() {
+    const token = document.getElementById('modal-token-name').textContent;
+    const status = parseInt(document.getElementById('resp-status').value) || 200;
+    const ctype = document.getElementById('resp-ctype').value || 'application/json';
+    const body = document.getElementById('resp-body').value || '';
+
+    try {
+        const resp = await fetch('api.php?action=save_response', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: token, status: status, content_type: ctype, body: body })
+        });
+        const data = await resp.json();
+        if (data.status === 'success') {
+            alert('Configuración guardada');
+            closeResponseModal();
+        } else {
+            alert('Error al guardar: ' + data.message);
+        }
+    } catch (err) {
+        console.error('Error al guardar config:', err);
+        alert('Error de red al guardar');
+    }
+}
+
+async function deleteResponseConfig() {
+    if (!confirm('¿Eliminar la respuesta personalizada para este token?')) return;
+    const token = document.getElementById('modal-token-name').textContent;
+    try {
+        const resp = await fetch('api.php?action=delete_response&token=' + encodeURIComponent(token));
+        const data = await resp.json();
+        if (data.status === 'success') {
+            alert('Configuración eliminada');
+            document.getElementById('resp-body').value = '';
+            closeResponseModal();
+        } else {
+            alert('Error al eliminar: ' + data.message);
+        }
+    } catch (err) {
+        console.error('Error al eliminar config:', err);
+        alert('Error de red al eliminar');
     }
 }
 

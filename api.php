@@ -62,6 +62,55 @@ switch ($action) {
         }
         echo json_encode(['status' => 'success', 'data' => $webhooks]);
         break;
+
+    case 'get_response':
+        // Devuelve la configuración de respuesta para un token
+        if (!$token) {
+            echo json_encode(['status' => 'error', 'message' => 'token requerido']);
+            break;
+        }
+        try {
+            $resp = Database::getResponseByToken($token);
+            echo json_encode(['status' => 'success', 'data' => $resp]);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+        break;
+
+    case 'save_response':
+        // Guardar/actualizar respuesta para token (POST JSON preferido)
+        $input = json_decode(file_get_contents('php://input'), true) ?? [];
+        $tokenParam = $_POST['token'] ?? $input['token'] ?? null;
+        $status = $_POST['status'] ?? $input['status'] ?? null;
+        $contentType = $_POST['content_type'] ?? $input['content_type'] ?? null;
+        $body = $_POST['body'] ?? $input['body'] ?? null;
+
+        if (!$tokenParam) {
+            echo json_encode(['status' => 'error', 'message' => 'token requerido']);
+            break;
+        }
+
+        try {
+            $ok = Database::upsertResponse($tokenParam, (int)$status, $contentType ?? 'application/json', $body ?? '');
+            echo json_encode(['status' => $ok ? 'success' : 'error']);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+        break;
+
+    case 'delete_response':
+        $tokenParam = $_GET['token'] ?? null;
+        if (!$tokenParam) {
+            echo json_encode(['status' => 'error', 'message' => 'token requerido']);
+            break;
+        }
+        try {
+            $ok = Database::deleteResponseByToken($tokenParam);
+            echo json_encode(['status' => 'success', 'deleted' => (bool)$ok]);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+        break;
         
     case 'get_new_webhooks':
         $since = $_GET['since'] ?? '';

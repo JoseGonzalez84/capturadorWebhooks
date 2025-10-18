@@ -134,5 +134,25 @@
     </div>
 
     <script src="script.js"></script>
+    <!-- Modal para configuración de respuesta por token -->
+    <div id="response-modal" class="modal" style="display:none;">
+        <div class="modal-backdrop" onclick="closeResponseModal()"></div>
+        <div class="modal-content">
+            <h3>Configurar respuesta para token: <span id="modal-token-name"></span></h3>
+            <form id="response-config-form" onsubmit="return false;">
+                <label>Status code:</label><br/>
+                <input id="resp-status" type="number" value="200" min="100" max="599" />
+                <label>Content-Type:</label><br/>
+                <input id="resp-ctype" type="text" value="application/json" />
+                <label>Body:</label><br/>
+                <textarea id="resp-body" rows="8" style="width:100%;"></textarea>
+                <div style="display:flex; gap:8px; margin-top:8px;">
+                    <button onclick="saveResponseConfig()">Guardar</button>
+                    <button onclick="deleteResponseConfig()" class="btn-danger">Eliminar</button>
+                    <button onclick="closeResponseModal()" type="button">Cerrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
