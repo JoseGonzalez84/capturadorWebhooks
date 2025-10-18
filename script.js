@@ -119,6 +119,12 @@ async function createEndpoint() {
     const label = document.getElementById('new-endpoint-label').value.trim();
     if (!token) { alert('El token es requerido'); return; }
 
+    // Validación: solo permitir A-Z a-z 0-9
+    if (!/^[A-Za-z0-9]+$/.test(token)) {
+        alert('El token solo puede contener letras y números (A-Z, a-z, 0-9)');
+        return;
+    }
+
     try {
         const resp = await fetch('api.php?action=create_endpoint', {
             method: 'POST',

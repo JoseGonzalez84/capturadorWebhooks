@@ -54,7 +54,10 @@
                                     <h4>Crear nuevo token</h4>
                                     <form id="create-endpoint-form" onsubmit="return false;">
                                         <label>Token (texto único):</label><br/>
-                                        <input id="new-endpoint-token" type="text" placeholder="abc123" />
+                         <input id="new-endpoint-token" type="text" placeholder="abc123" 
+                             pattern="[A-Za-z0-9]+" title="Solo letras A-Z (mayúsculas/minúsculas) y números" 
+                             maxlength="64" autocomplete="off"
+                             oninput="this.value = this.value.replace(/[^A-Za-z0-9]/g, '')" />
                                         <label>Etiqueta (opcional):</label><br/>
                                         <input id="new-endpoint-label" type="text" placeholder="Descripción" />
                                         <button onclick="createEndpoint()">Crear</button>
