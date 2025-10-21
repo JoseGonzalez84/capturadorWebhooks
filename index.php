@@ -167,7 +167,8 @@ if (!isset($_SESSION['is_authenticated'])) {
                                 <code id="token-endpoint-display"><?php echo $displayEndpoint; ?></code>
                             </div>
                             <div class="tokens-right">
-                                <button id="tokens-toggle-button" onclick="toggleTokensAccordion()">Abrir</button>
+                                <button class="btn-action" onclick="copyToClipboard()" title="Copiar al portapapeles"><img width="24" height="24" src="https://img.icons8.com/windows/32/copy-link.png" alt="copy-link"/></button>    
+                                <button id="tokens-toggle-button" onclick="toggleTokensAccordion()" title="Configuración">Abrir</button>
                             </div>
                         </div>
 
@@ -263,7 +264,30 @@ if (!isset($_SESSION['is_authenticated'])) {
         </div>
     </div>
     <footer>
-        <div class="site-footer"></div>
+        <div class="site-footer">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <img src="kraken.png" width="48" height="48" alt="kraken"/>
+                <div>
+                    <div style="font-weight:700;">Capturador de Webhooks</div>
+                    <div style="font-size:12px;color:#667eea;">Hecho por <a href="https://gadev.com.es/">gaDEV</a> en 2025.</div>
+                </div>
+            </div>
+
+            <div style="text-align:center; font-size:14px; color:#334155;">
+                <div>Software de API-Testing</div>
+                <div style="font-size:12px;color:#667;">
+                    <a href="https://github.com/JoseGonzalez84/capturadorWebhooks/"><img width="24" height="24" src="https://img.icons8.com/windows/32/github.png" alt="github"/></a>
+                    <a href="www.linkedin.com/in/jose-gonzalez-silva"><img width="24" height="24" src="https://img.icons8.com/windows/32/linkedin-2.png" alt="linkedin-2"/></a>
+                </div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:8px;">
+                <a href="?logout=1" title="Cerrar sesión" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px; color:#e53e3e;">
+                    <img width="24" height="24" src="https://img.icons8.com/windows/32/logout-rounded-left.png" alt="logout"/>
+                    <span style="font-weight:600;color:#e53e3e;">Cerrar sesión</span>
+                </a>
+            </div>
+        </div>
     </footer>
 </body>
 </html>

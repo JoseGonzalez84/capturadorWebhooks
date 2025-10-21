@@ -10,17 +10,42 @@ body {
     background: linear-gradient(135deg, #222831 0%, #687e9f 100%);
     min-height: 100vh;
     color: #333;
+    display: flex;
+    flex-direction: column;
 }
 
 .container {
-    margin: 0 auto;
     padding: 20px;
+    /* Make the main container flex-grow so footer stays at bottom when content is short */
+    flex: 1 0 auto;
+}
+
+/* Footer layout: not fixed, but always at the bottom when content is short */
+footer {
+    flex-shrink: 0;
+    width: 100%;
+    background: #ffffff;
+}
+
+.site-footer {
+    max-width: 1200px;
+    margin: 0 auto;
+    height: 66px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    box-shadow: 0 -6px 18px rgba(0,0,0,0.04);
+}
+
+/* Ensure header/footer contrast: make footer text color similar to header */
+.site-footer, footer {
+    color: #4a5568;
 }
 
 header {
     background: #EEEEEE;
     padding: 10px;
-    border-radius: 10px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     text-align: center;
 }
@@ -48,9 +73,10 @@ header p {
 }
 
 #header-container-right {
-    width: 50%;
+    width: 60%;
     align-items: center;
     display: flex;
+    flex-direction: row-reverse;
 }
 
 #header-container-left h1 img {
@@ -101,6 +127,11 @@ button img {
 
 button:hover {
     background: #5a6fd8;
+}
+
+.btn-action {
+    background: #00ADB5 !important;
+    box-shadow: 0 2px 2px #00ADB566 !important;
 }
 
 .btn-danger {
@@ -506,6 +537,7 @@ button:hover {
     border-radius: 8px;
     padding: 8px;
     display: block;
+    width: 100%;
 }
 
 .tokens-header {
@@ -516,8 +548,8 @@ button:hover {
 }
 
 .tokens-left { flex: 1; color: #334155; }
-.tokens-center { flex: 2; text-align: center; }
-.tokens-right { flex: 0 0 auto; }
+.tokens-center { flex: 2; text-align: right; }
+.tokens-right { display: flex;flex: 0 0 auto; }
 
 .tokens-center code { background: transparent; padding: 4px 8px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; }
 

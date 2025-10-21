@@ -573,7 +573,7 @@ function copyPayload(button, webhookId) {
 function updateStats(count) {
     webhooksCount = count;
     document.getElementById('total-count').textContent = count;
-    document.getElementById('last-update').textContent = new Date().toLocaleTimeString('es-ES');
+    //document.getElementById('last-update').textContent = new Date().toLocaleTimeString('es-ES');
 }
 
 // Mostrar/ocultar indicador de carga
@@ -629,7 +629,7 @@ function refreshWebhooks() {
 
 // Copiar URL del webhook al portapapeles
 function copyToClipboard() {
-    const url = document.getElementById('webhook-url').textContent;
+    const url = document.getElementById('token-endpoint-display').textContent;
 
     if (navigator.clipboard) {
         navigator.clipboard.writeText(url).then(() => {
