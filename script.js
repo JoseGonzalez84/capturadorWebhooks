@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const toggleBtn = document.getElementById('tokens-toggle-button');
     if (tokenCurrent) tokenCurrent.textContent = currentToken || '-';
     // Mostrar icono inicial (cerrado)
-    if (toggleBtn) toggleBtn.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/windows/32/circled-chevron-down.png" alt="circled-chevron-down"/>';
+    if (toggleBtn) toggleBtn.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/windows/32/settings.png" alt="circled-chevron-down"/>';
 });
 
 // Toggle del acordeón de tokens
@@ -50,13 +50,13 @@ function toggleTokensAccordion() {
         content.style.display = 'block';
         if (btn) {
             btn.classList.add('open');
-            btn.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/windows/32/circled-chevron-up.png" alt="circled-chevron-up"/>';
+            btn.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/windows/32/settings.png" alt="circled-chevron-up"/>';
         }
     } else {
         content.style.display = 'none';
         if (btn) {
             btn.classList.remove('open');
-            btn.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/windows/32/circled-chevron-down.png" alt="circled-chevron-down"/>';
+            btn.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/windows/32/settings.png" alt="circled-chevron-down"/>';
         }
     }
 }
@@ -89,13 +89,13 @@ function renderEndpointsList(endpoints) {
 
     container.innerHTML = endpoints.map(ep => `
         <div class="endpoint-item">
-            <div>
-                #${ep.id} <strong>${escapeHtml(ep.token)}</strong>
+            <div class="endpoint-item-title">
+                <strong>${escapeHtml(ep.token)}</strong>
                 <div style="color:#888;font-size:12px;"> ${ep.label ? escapeHtml(ep.label) + ' · ' : ''}${ep.created_at}</div>
             </div>
-            <div style="display:flex; gap:8px;">
-                <a class="endpoint-open-link" href="/webhooks/view/${encodeURIComponent(ep.token)}" title="Abrir ${escapeHtml(ep.token)}"><img width="24" height="24" src="https://img.icons8.com/windows/32/clipboard-approve.png" alt="open-token"/></a>
-                <button onclick="openResponseModal('${escapeHtml(ep.token)}')" title="Configurar respuesta"><img width="24" height="24" src="https://img.icons8.com/windows/32/settings.png" alt="settings"/></button>
+            <div style="display:flex">
+                <button onclick="window.location.href='/webhooks/view/${encodeURIComponent(ep.token)}';"><img width="24" height="24" src="https://img.icons8.com/windows/32/approval.png" alt="approval"/></button>
+                <button onclick="openResponseModal('${escapeHtml(ep.token)}')" title="Configurar respuesta"><img width="24" height="24" src="https://img.icons8.com/windows/32/response.png" alt="response"/></button>
                 <button onclick="deleteEndpoint(${ep.id}, '${ep.token}')" class="btn-danger"><img width="24" height="24" src="https://img.icons8.com/windows/32/delete-trash.png" alt="delete-trash"></button>
             </div>
         </div>
@@ -119,7 +119,7 @@ function openResponseModal(token) {
     const modal = document.getElementById('response-modal');
     const tokenName = document.getElementById('modal-token-name');
     tokenName.textContent = token;
-    modal.style.display = 'block';
+    modal.style.display = 'flex';
     // cargar configuración actual
     loadResponseConfig(token);
 }
@@ -581,8 +581,10 @@ function showLoading(show) {
     document.getElementById('loading').style.display = show ? 'block' : 'none';
 }
 
-// Configurar actualización automática
+// Configurar actualización automática. Establecido a TRUE por defecto;
 function setupAutoRefresh() {
+    startAutoRefresh();
+    /*
     const checkbox = document.getElementById('auto-refresh');
 
     checkbox.addEventListener('change', function() {
@@ -597,6 +599,7 @@ function setupAutoRefresh() {
     if (checkbox.checked) {
         startAutoRefresh();
     }
+    */
 }
 
 // Iniciar actualización automática

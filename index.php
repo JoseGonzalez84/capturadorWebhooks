@@ -144,8 +144,7 @@ if (!isset($_SESSION['is_authenticated'])) {
     <link rel="shortcut icon" href="kraken.png" type="image/x-icon" />   
 </head>
 <body>
-    <div class="container">
-        <header>
+    <header>
             <div id="header-container">
                 <div id="header-container-left">
                     <h1><img width="64" height="64" src="kraken.png" alt="kraken"/> Capturador de Webhooks</h1>
@@ -174,20 +173,24 @@ if (!isset($_SESSION['is_authenticated'])) {
 
                         <div class="tokens-content" id="tokens-accordion-content" style="display:none;">
                             <div style="display:flex; gap:16px; align-items:flex-start;">
-                                <div style="flex:1;">
+                                <div style="flex:2;">
                                     <h4>Crear nuevo token</h4>
                                     <form id="create-endpoint-form" onsubmit="return false;">
-                                        <label>Token (texto único):</label><br/>
-                         <input id="new-endpoint-token" type="text" placeholder="abc123" 
-                             pattern="[A-Za-z0-9]+" title="Solo letras A-Z (mayúsculas/minúsculas) y números" 
-                             maxlength="64" autocomplete="off"
-                             oninput="this.value = this.value.replace(/[^A-Za-z0-9]/g, '')" />
-                                        <label>Etiqueta (opcional):</label><br/>
-                                        <input id="new-endpoint-label" type="text" placeholder="Descripción" />
-                                        <button onclick="createEndpoint()">Crear</button>
+                                        <div class="endpoint-form-field">
+                                            <label>Token (texto único):</label><br/>
+                                            <input id="new-endpoint-token" type="text" placeholder="abc123" 
+                                                pattern="[A-Za-z0-9]+" title="Solo letras A-Z (mayúsculas/minúsculas) y números" 
+                                                maxlength="64" autocomplete="off"
+                                                oninput="this.value = this.value.replace(/[^A-Za-z0-9]/g, '')" />
+                                        </div>               
+                                        <div class="endpoint-form-field">
+                                            <label>Etiqueta (opcional):</label><br/>
+                                            <input id="new-endpoint-label" type="text" placeholder="Descripción" />
+                                        </div>
+                                        <button onclick="createEndpoint()"><img width="24" height="24" src="https://img.icons8.com/windows/32/add-file.png" alt="add-file"/></button>
                                     </form>
                                 </div>
-                                <div style="flex:2;">
+                                <div style="flex:3;">
                                     <h4>Tokens existentes</h4>
                                     <div id="endpoints-list">
                                         <!-- Lista dinámica de endpoints -->
@@ -199,38 +202,19 @@ if (!isset($_SESSION['is_authenticated'])) {
                 </div>
             </div>
         </header>
-
-        <div class="stats">
-            <div class="controls">
-                <label>
-                    <input type="checkbox" id="auto-refresh" checked>
-                    Autoupdate (3 secs.)
-                </label>
-            </div>
-            <div class="stat">
-                <div>
-                    <span class="stat-label">Última actualización:</span>
-                    <span class="stat-value" id="last-update">-</span>
-                </div>
-                <div>
-                    <button onclick="refreshWebhooks()"><img width="24" height="24" src="https://img.icons8.com/windows/32/available-updates.png" alt="available-updates"/></button>
-                </div>
-            </div>
-            <div class="stat">
-                <div>
-                    <span class="stat-label">Total de Webhooks:</span>
-                    <span class="stat-value" id="total-count">0</span>
-                </div>
-                <div>
-                    <button onclick="clearWebhooks()" class="btn-danger"><img width="24" height="24" src="https://img.icons8.com/windows/32/delete-trash.png" alt="delete-trash"/></button>
-                </div>
-                
-            </div>
-        </div>
-
+    <div class="container">
         <div class="main-layout">
             <div class="webhooks-list">
-                <h3>Registros Capturados</h3>
+                <div class="webhooks-list-title">
+                    <div style="display: flex;align-items: center;">
+                        <h3>Registros Capturados</h3> (&nbsp;<span class="stat-value" id="total-count">0</span>&nbsp;)
+                    </div>
+                    <div style="display: flex;">
+                        <button onclick="refreshWebhooks()"><img width="24" height="24" src="https://img.icons8.com/windows/32/available-updates.png" alt="available-updates" title="Actualizar registros"/></button>
+                        <button onclick="clearWebhooks()" style="margin-right: 10px;" class="btn-danger" title="Eliminar todos los registros de este token"><img width="24" height="24" src="https://img.icons8.com/windows/32/delete-trash.png" alt="delete-trash"/></button>
+                    </div>
+                </div>
+                
                 <div id="webhooks-container">
                     <!-- Lista de webhooks se cargará aquí -->
                 </div>
@@ -262,7 +246,8 @@ if (!isset($_SESSION['is_authenticated'])) {
     <div id="response-modal" class="modal" style="display:none;">
         <div class="modal-backdrop" onclick="closeResponseModal()"></div>
         <div class="modal-content">
-            <h3>Configurar respuesta para token: <span id="modal-token-name"></span></h3>
+            <button onclick="closeResponseModal()" type="button" class="btn-close"><img width="24" height="24" src="https://img.icons8.com/windows/32/close-window.png" alt="close-window" title="Cerrar modal"/></button>
+            <h3>Configurar respuesta para token <span id="modal-token-name"></span></h3>
             <form id="response-config-form" onsubmit="return false;">
                 <label>Status code:</label><br/>
                 <input id="resp-status" type="number" value="200" min="100" max="599" />
@@ -270,13 +255,15 @@ if (!isset($_SESSION['is_authenticated'])) {
                 <input id="resp-ctype" type="text" value="application/json" />
                 <label>Body:</label><br/>
                 <textarea id="resp-body" rows="8" style="width:100%;"></textarea>
-                <div style="display:flex; gap:8px; margin-top:8px;">
-                    <button onclick="saveResponseConfig()">Guardar</button>
-                    <button onclick="deleteResponseConfig()" class="btn-danger">Eliminar</button>
-                    <button onclick="closeResponseModal()" type="button">Cerrar</button>
+                <div style="display:flex; gap:8px; margin-top:8px; flex-direction: row-reverse;">
+                    <button onclick="saveResponseConfig()"><img width="24" height="24" src="https://img.icons8.com/windows/32/chat-message-sent.png" alt="chat-message-sent" title="Guardar respuesta"/></button>
+                    <button onclick="deleteResponseConfig()" class="btn-danger"><img width="24" height="24" src="https://img.icons8.com/windows/32/delete-chat--v1.png" alt="delete-chat--v1"title="Eliminar respuesta"/></button>
                 </div>
             </form>
         </div>
     </div>
+    <footer>
+        <div class="site-footer"></div>
+    </footer>
 </body>
 </html>

@@ -22,7 +22,6 @@ header {
     padding: 10px;
     border-radius: 10px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
     text-align: center;
 }
 
@@ -43,8 +42,14 @@ header p {
     justify-content: space-between;
 }
 
-#header-container-left, #header-container-right {
+#header-container-left {
     align-items: flex-start;
+    display: flex;
+}
+
+#header-container-right {
+    width: 50%;
+    align-items: center;
     display: flex;
 }
 
@@ -65,6 +70,7 @@ header p {
 }
 
 input {
+    width: 100%;
     padding: 8px 10px;
     border-radius: 8px;
     font-family: 'JetBrains Mono', monospace;
@@ -104,6 +110,17 @@ button:hover {
 
 .btn-danger:hover {
     background: #c53030 !important;
+}
+
+.modal-content .btn-close {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    background: #00ADB5;
+}
+
+.btn-close img {
+    filter: invert(0) !important;
 }
 
 .controls {
@@ -154,7 +171,6 @@ button:hover {
 
 .stat-value {
     font-weight: bold;
-    color: #2d3748;
     font-size: 1.2em;
 }
 
@@ -165,7 +181,7 @@ button:hover {
     gap: 20px;
     /* Ajustar al alto de la ventana restando espacio de header/controles
        Nota: el valor 260px approximates la altura ocupada por header + stats + paddings */
-    min-height: calc(100vh - 160px);
+    min-height: calc(100vh - 200px);
     align-items: start;
 }
 
@@ -182,11 +198,17 @@ button:hover {
 }
 
 .webhooks-list h3 {
-    background: #00ADB5;
-    color: #EEEEEE;
     padding: 10px 10px;
     margin: 0;
     font-size: 1.2em;
+}
+
+.webhooks-list-title {
+    background: #00ADB5;
+    color: #EEEEEE;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .webhooks-list #webhooks-container {
@@ -711,6 +733,12 @@ button:hover {
     border-bottom: 1px solid rgb(214 214 214);
 }
 
+.endpoint-item-title {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .container {
@@ -772,4 +800,28 @@ button:hover {
 }
 .modal-content h3 {
     margin-top: 0;
+}
+
+#modal-token-name {
+    padding: 6px 10px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #2d3748;
+}
+
+#resp-body {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #2d3748;
+    border: 2px solid #e2e8f0;
+    display: inline-block;
+    word-break: break-all;
+}
+
+h4 {
+    display: flex;
+    margin: 10px 0;
 }
