@@ -93,10 +93,10 @@ function renderEndpointsList(endpoints) {
                 <strong>${escapeHtml(ep.token)}</strong>
                 <div style="color:#888;font-size:12px;"> ${ep.label ? escapeHtml(ep.label) + ' · ' : ''}${ep.created_at}</div>
             </div>
-            <div style="display:flex">
-                <button onclick="window.location.href='/webhooks/view/${encodeURIComponent(ep.token)}';"><img width="24" height="24" src="https://img.icons8.com/windows/32/approval.png" alt="approval"/></button>
-                <button onclick="openResponseModal('${escapeHtml(ep.token)}')" title="Configurar respuesta"><img width="24" height="24" src="https://img.icons8.com/windows/32/response.png" alt="response"/></button>
-                <button onclick="deleteEndpoint(${ep.id}, '${ep.token}')" class="btn-danger"><img width="24" height="24" src="https://img.icons8.com/windows/32/delete-trash.png" alt="delete-trash"></button>
+            <div style="display: table-row;">
+                <img class="clickable button-action" title="Establecer token" onclick="window.location.href='/webhooks/view/${encodeURIComponent(ep.token)}';" width="24" height="24" src="https://img.icons8.com/windows/32/approval.png" alt="approval"/>
+                <img class="clickable button-action" title="Configurar respuesta" onclick="openResponseModal('${escapeHtml(ep.token)}')" width="24" height="24" src="https://img.icons8.com/windows/32/response.png" alt="response"/>
+                <img class="clickable button-critical" title="Borrar token" onclick="deleteEndpoint(${ep.id}, '${ep.token}')" width="24" height="24" src="https://img.icons8.com/windows/32/delete-trash.png" alt="delete-trash">
             </div>
         </div>
     `).join('');

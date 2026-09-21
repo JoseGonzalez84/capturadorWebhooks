@@ -91,13 +91,14 @@ if (!isset($_SESSION['is_authenticated'])) {
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Login - Capturador de Webhooks</title>
         <style>
-            body { font-family: Arial, Helvetica, sans-serif; background: #f4f6f8; display:flex; align-items:center; justify-content:center; height:100vh; margin:0 }
-            .login-box { background:#fff; padding:24px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.08); width:360px }
-            label { display:block; margin-bottom:8px; color:#333 }
-            input[type=password] { width:100%; padding:10px; margin-bottom:12px; border:1px solid #ddd; border-radius:6px }
-            button { background:#667eea; color:#fff; padding:10px 14px; border:none; border-radius:6px; cursor:pointer }
-            .error { color:#c53030; margin-bottom:12px }
-            .info { font-size:12px; color:#666; margin-top:8px }
+            body { font-family:'Noto Sans', 'Segoe UI', sans-serif; background:#191919; color:#e9e9e7; display:flex; align-items:center; justify-content:center; height:100vh; margin:0 }
+            .login-box { background:#202020; border:1px solid #353535; padding:28px; border-radius:8px; box-shadow:0 20px 60px rgba(0,0,0,0.4); width:360px }
+            label { display:block; margin-bottom:8px; color:#b5b5b0 }
+            input[type=password] { width:100%; padding:10px; margin-bottom:12px; border:1px solid #353535; background:#252525; color:#e9e9e7; border-radius:5px; box-sizing:border-box }
+            button { background:#d6b98c; color:#191919; padding:10px 14px; border:none; border-radius:5px; cursor:pointer; font-weight:600 }
+            .error { color:#e48787; margin-bottom:12px }
+            .info { font-size:12px; color:#898984; margin-top:8px }
+            code { font-family:'JetBrains Mono', monospace; color:#d6b98c }
         </style>
     </head>
     <body>
@@ -140,8 +141,8 @@ if (!isset($_SESSION['is_authenticated'])) {
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
-    <link rel="shortcut icon" href="kraken.png" type="image/x-icon" />   
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="kraken.png" type="image/x-icon" />
 </head>
 <body>
     <header>
@@ -160,14 +161,14 @@ if (!isset($_SESSION['is_authenticated'])) {
 
                     <div class="tokens-accordion" id="tokens-accordion">
                         <div class="tokens-header" id="tokens-accordion-header">
-                            <div class="tokens-left">                                
+                            <div class="tokens-left">
                                 <strong><span style="visibility:hidden" id="token-current-value"><?php echo htmlspecialchars($selectedToken); ?></span></strong>
                             </div>
                             <div class="tokens-center">
                                 <code id="token-endpoint-display"><?php echo $displayEndpoint; ?></code>
                             </div>
                             <div class="tokens-right">
-                                <button class="btn-action" onclick="copyToClipboard()" title="Copiar al portapapeles"><img width="24" height="24" src="https://img.icons8.com/windows/32/copy-link.png" alt="copy-link"/></button>    
+                                <img class="clickable button-action" onclick="copyToClipboard()" title="Copiar al portapapeles" width="32" height="32" src="https://img.icons8.com/windows/32/copy-link.png" alt="copy-link"/>
                                 <button id="tokens-toggle-button" onclick="toggleTokensAccordion()" title="Configuración">Abrir</button>
                             </div>
                         </div>
@@ -175,20 +176,23 @@ if (!isset($_SESSION['is_authenticated'])) {
                         <div class="tokens-content" id="tokens-accordion-content" style="display:none;">
                             <div style="display:flex; gap:16px; align-items:flex-start;">
                                 <div style="flex:2;">
-                                    <h4>Crear nuevo token</h4>
+                                    <div class="create-endpoint-title">
+                                        <h4>Crear nuevo token</h4>
+                                        <img class="clickable button-action" onclick="createEndpoint()" width="24" height="24" src="https://img.icons8.com/windows/32/add-file.png" alt="add-file" title="Crear nuevo endpoint"/>
+                                    </div>
+
                                     <form id="create-endpoint-form" onsubmit="return false;">
                                         <div class="endpoint-form-field">
                                             <label>Token (texto único):</label><br/>
-                                            <input id="new-endpoint-token" type="text" placeholder="abc123" 
-                                                pattern="[A-Za-z0-9]+" title="Solo letras A-Z (mayúsculas/minúsculas) y números" 
+                                            <input id="new-endpoint-token" type="text" placeholder="abc123"
+                                                pattern="[A-Za-z0-9]+" title="Solo letras A-Z (mayúsculas/minúsculas) y números"
                                                 maxlength="64" autocomplete="off"
                                                 oninput="this.value = this.value.replace(/[^A-Za-z0-9]/g, '')" />
-                                        </div>               
+                                        </div>
                                         <div class="endpoint-form-field">
                                             <label>Etiqueta (opcional):</label><br/>
                                             <input id="new-endpoint-label" type="text" placeholder="Descripción" />
                                         </div>
-                                        <button onclick="createEndpoint()"><img width="24" height="24" src="https://img.icons8.com/windows/32/add-file.png" alt="add-file"/></button>
                                     </form>
                                 </div>
                                 <div style="flex:3;">
@@ -210,12 +214,12 @@ if (!isset($_SESSION['is_authenticated'])) {
                     <div style="display: flex;align-items: center;">
                         <h3>Registros Capturados</h3> (&nbsp;<span class="stat-value" id="total-count">0</span>&nbsp;)
                     </div>
-                    <div style="display: flex;">
-                        <button onclick="refreshWebhooks()"><img width="24" height="24" src="https://img.icons8.com/windows/32/available-updates.png" alt="available-updates" title="Actualizar registros"/></button>
-                        <button onclick="clearWebhooks()" style="margin-right: 10px;" class="btn-danger" title="Eliminar todos los registros de este token"><img width="24" height="24" src="https://img.icons8.com/windows/32/delete-trash.png" alt="delete-trash"/></button>
+                    <div style="display: flex; background: aliceblue; height: 100%; align-items: center; padding: 5px 0 5px 10px;">
+                        <img class="clickable button-action" onclick="refreshWebhooks()" title="Actualizar registros" width="24" height="24" src="https://img.icons8.com/windows/32/available-updates.png" alt="available-updates"/>
+                        <img class="clickable button-critical" onclick="clearWebhooks()" title="Eliminar todos los registros de este token" style="margin-right: 10px;" width="24" height="24" src="https://img.icons8.com/windows/32/delete-trash.png" alt="delete-trash"/>
                     </div>
                 </div>
-                
+
                 <div id="webhooks-container">
                     <!-- Lista de webhooks se cargará aquí -->
                 </div>
@@ -247,7 +251,7 @@ if (!isset($_SESSION['is_authenticated'])) {
     <div id="response-modal" class="modal" style="display:none;">
         <div class="modal-backdrop" onclick="closeResponseModal()"></div>
         <div class="modal-content">
-            <button onclick="closeResponseModal()" type="button" class="btn-close"><img width="24" height="24" src="https://img.icons8.com/windows/32/close-window.png" alt="close-window" title="Cerrar modal"/></button>
+            <img class="clickable button-close" title="Cerrar ventana" onclick="closeResponseModal()" width="24" height="24" src="https://img.icons8.com/windows/32/close-window.png" alt="close-window"/></button>
             <h3>Configurar respuesta para token <span id="modal-token-name"></span></h3>
             <form id="response-config-form" onsubmit="return false;">
                 <label>Status code:</label><br/>
@@ -257,8 +261,8 @@ if (!isset($_SESSION['is_authenticated'])) {
                 <label>Body:</label><br/>
                 <textarea id="resp-body" rows="8" style="width:100%;"></textarea>
                 <div style="display:flex; gap:8px; margin-top:8px; flex-direction: row-reverse;">
-                    <button onclick="saveResponseConfig()"><img width="24" height="24" src="https://img.icons8.com/windows/32/chat-message-sent.png" alt="chat-message-sent" title="Guardar respuesta"/></button>
-                    <button onclick="deleteResponseConfig()" class="btn-danger"><img width="24" height="24" src="https://img.icons8.com/windows/32/delete-chat--v1.png" alt="delete-chat--v1"title="Eliminar respuesta"/></button>
+                    <img class="clickable button-action" title="Guardar respuesta" onclick="saveResponseConfig()" width="24" height="24" src="https://img.icons8.com/windows/32/chat-message-sent.png" alt="chat-message-sent"/>
+                    <img class="clickable button-critical" title="Eliminar respuesta" onclick="deleteResponseConfig()" width="24" height="24" src="https://img.icons8.com/windows/32/delete-chat--v1.png" alt="delete-chat--v1" />
                 </div>
             </form>
         </div>
