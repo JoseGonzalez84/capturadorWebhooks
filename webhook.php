@@ -26,6 +26,50 @@ function getAllHeadersss() {
     return $headers;
 }
 
+// Expande las variables dinámicas justo antes de enviar la respuesta configurada.
+function expandResponseVariables($body) {
+    $today = new DateTimeImmutable('now');
+    $currentDate = $today->format('d-m-Y');
+    $timestamp = $today->format('Y-m-d H:i:s');
+
+    return preg_replace_callback('/%\*(CURRENT_DATE|TIMESTAMP|RANDOM_DATE|IDENTIFIER_(\d{1,3})_(NUMERIC|ALPHA|ALL))\*%/', function ($matches) use ($currentDate, $timestamp) {
+        $variable = $matches[1];
+
+        if ($variable === 'CURRENT_DATE') {
+            return $currentDate;
+        }
+
+        if ($variable === 'TIMESTAMP') {
+            return $timestamp;
+        }
+
+        if ($variable === 'RANDOM_DATE') {
+            $start = (new DateTimeImmutable('1970-01-01'))->getTimestamp();
+            $end = (new DateTimeImmutable('now'))->getTimestamp();
+            return (new DateTimeImmutable('@' . random_int($start, $end)))->setTimezone(new DateTimeZone(date_default_timezone_get()))->format('d-m-Y');
+        }
+
+        $length = (int)$matches[2];
+        $type = $matches[3];
+        if ($length < 1 || $length > 256) {
+            return $matches[0];
+        }
+
+        $characters = $type === 'NUMERIC' ? '0123456789' : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+        if ($type === 'ALL') {
+            $characters .= '0123456789';
+        }
+
+        $identifier = '';
+        $maxIndex = strlen($characters) - 1;
+        for ($index = 0; $index < $length; $index++) {
+            $identifier .= $characters[random_int(0, $maxIndex)];
+        }
+
+        return $identifier;
+    }, $body);
+}
+
 // Capturar información de la petición
 $method = $_SERVER['REQUEST_METHOD'];
 $url = $_SERVER['REQUEST_URI'];
@@ -65,7 +109,7 @@ try {
         if ($respCfg && isset($respCfg['status_code'])) {
             $code = (int)$respCfg['status_code'];
             $ctype = $respCfg['content_type'] ?? 'application/json';
-            $respBody = $respCfg['body'] ?? '';
+            $respBody = expandResponseVariables($respCfg['body'] ?? '');
 
             http_response_code($code);
             header('Content-Type: ' . $ctype);

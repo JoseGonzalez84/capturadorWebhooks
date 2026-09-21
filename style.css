@@ -1230,6 +1230,37 @@ button:hover,
     filter: invert(69%) sepia(37%) saturate(850%) hue-rotate(310deg) brightness(95%);
 }
 
+.response-variables-help {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    background: var(--surface-raised);
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+.response-variables-help strong {
+    color: var(--text);
+    font-size: 13px;
+}
+
+.response-variables-help p {
+    margin: 4px 0 8px;
+}
+
+.response-variables-help ul {
+    margin: 0 0 8px;
+    padding-left: 18px;
+}
+
+.response-variables-help code {
+    color: var(--accent);
+    font-family: var(--mono);
+}
+
 @media (max-width: 768px) {
     header {
         padding: 14px 16px;

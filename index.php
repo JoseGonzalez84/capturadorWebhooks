@@ -260,6 +260,17 @@ if (!isset($_SESSION['is_authenticated'])) {
                 <input id="resp-ctype" type="text" value="application/json" />
                 <label>Body:</label><br/>
                 <textarea id="resp-body" rows="8" style="width:100%;"></textarea>
+                <div class="response-variables-help">
+                    <strong>Variables dinámicas</strong>
+                    <p>Se sustituyen cada vez que llega una llamada. La fecha usa el formato <code>DD-MM-YYYY</code> y el timestamp <code>YYYY-MM-DD HH:MM:SS</code>.</p>
+                    <ul>
+                        <li><code>%*CURRENT_DATE*%</code> Fecha actual</li>
+                        <li><code>%*TIMESTAMP*%</code> Timestamp actual</li>
+                        <li><code>%*RANDOM_DATE*%</code> Fecha aleatoria entre 1970 y hoy</li>
+                        <li><code>%*IDENTIFIER_X_YYY*%</code> Identificador aleatorio de X caracteres: <code>NUMERIC</code>, <code>ALPHA</code> o <code>ALL</code></li>
+                    </ul>
+                    <p>Ejemplo: <code>{"dato":"%*IDENTIFIER_8_ALL*%"}</code></p>
+                </div>
                 <div style="display:flex; gap:8px; margin-top:8px; flex-direction: row-reverse;">
                     <img class="clickable button-action" title="Guardar respuesta" onclick="saveResponseConfig()" width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/save-as.png" alt="chat-message-sent"/>
                     <img class="clickable button-critical" title="Eliminar respuesta" onclick="deleteResponseConfig()" width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/delete-sign.png" alt="delete-chat--v1" />
