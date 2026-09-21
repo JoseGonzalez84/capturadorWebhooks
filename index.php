@@ -168,7 +168,7 @@ if (!isset($_SESSION['is_authenticated'])) {
                                 <code id="token-endpoint-display"><?php echo $displayEndpoint; ?></code>
                             </div>
                             <div class="tokens-right">
-                                <img class="clickable button-action" onclick="copyToClipboard()" title="Copiar al portapapeles" width="32" height="32" src="https://img.icons8.com/windows/32/copy-link.png" alt="copy-link"/>
+                                <img class="clickable button-action" onclick="copyToClipboard()" title="Copiar al portapapeles" width="32" height="32" src="https://img.icons8.com/liquid-glass-color/32/link.png" alt="link"/>
                                 <button id="tokens-toggle-button" onclick="toggleTokensAccordion()" title="Configuración">Abrir</button>
                             </div>
                         </div>
@@ -178,7 +178,7 @@ if (!isset($_SESSION['is_authenticated'])) {
                                 <div style="flex:2;">
                                     <div class="create-endpoint-title">
                                         <h4>Crear nuevo token</h4>
-                                        <img class="clickable button-action" onclick="createEndpoint()" width="24" height="24" src="https://img.icons8.com/windows/32/add-file.png" alt="add-file" title="Crear nuevo endpoint"/>
+                                        <img class="clickable button-action" onclick="createEndpoint()" width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/add-folder.png" alt="add-file" title="Crear nuevo endpoint"/>
                                     </div>
 
                                     <form id="create-endpoint-form" onsubmit="return false;">
@@ -215,8 +215,8 @@ if (!isset($_SESSION['is_authenticated'])) {
                         <h3>Registros Capturados</h3> (&nbsp;<span class="stat-value" id="total-count">0</span>&nbsp;)
                     </div>
                     <div style="display: flex; background: aliceblue; height: 100%; align-items: center; padding: 5px 0 5px 10px;">
-                        <img class="clickable button-action" onclick="refreshWebhooks()" title="Actualizar registros" width="24" height="24" src="https://img.icons8.com/windows/32/available-updates.png" alt="available-updates"/>
-                        <img class="clickable button-critical" onclick="clearWebhooks()" title="Eliminar todos los registros de este token" style="margin-right: 10px;" width="24" height="24" src="https://img.icons8.com/windows/32/delete-trash.png" alt="delete-trash"/>
+                        <img class="clickable button-action" onclick="refreshWebhooks()" title="Actualizar registros" width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/connection-sync.png" alt="available-updates"/>
+                        <img class="clickable button-critical" onclick="clearWebhooks()" title="Eliminar todos los registros de este token" style="margin-right: 10px;" width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/delete-forever.png" alt="delete-trash"/>
                     </div>
                 </div>
 
@@ -224,14 +224,14 @@ if (!isset($_SESSION['is_authenticated'])) {
                     <!-- Lista de webhooks se cargará aquí -->
                 </div>
                 <div id="no-webhooks" style="display: none;">
-                    <p><img width="24" height="24" src="https://img.icons8.com/windows/32/mailbox-closed-flag-down--v1.png" alt="mailbox-closed-flag-down--v1"/> No hay webhooks aún.</p>
+                    <p><img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/post-office.png" alt="no-data"/> No hay webhooks aún.</p>
                 </div>
             </div>
 
             <div class="webhook-detail">
                 <div id="detail-placeholder">
                     <div class="placeholder-content">
-                        <h3><img width="24" height="24" src="https://img.icons8.com/windows/32/hand-left.png" alt="hand-left"/> Selecciona un registro</h3>
+                        <h3><img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/sell.png" alt="indication"/> Selecciona un registro</h3>
                         <p>Haz clic en cualquier registro de la izquierda para ver sus detalles completos</p>
                     </div>
                 </div>
@@ -242,7 +242,7 @@ if (!isset($_SESSION['is_authenticated'])) {
         </div>
 
         <div id="loading" style="display: none;">
-            <p><img width="24" height="24" src="https://img.icons8.com/windows/32/hourglass--v1.png" alt="hourglass--v1"/> Cargando webhooks...</p>
+            <p><img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/historical.png" alt="hourglass--v1"/> Cargando webhooks...</p>
         </div>
     </div>
 
@@ -251,7 +251,7 @@ if (!isset($_SESSION['is_authenticated'])) {
     <div id="response-modal" class="modal" style="display:none;">
         <div class="modal-backdrop" onclick="closeResponseModal()"></div>
         <div class="modal-content">
-            <img class="clickable button-close" title="Cerrar ventana" onclick="closeResponseModal()" width="24" height="24" src="https://img.icons8.com/windows/32/close-window.png" alt="close-window"/></button>
+            <img class="clickable button-close" title="Cerrar ventana" onclick="closeResponseModal()" width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/close-window.png" alt="close-window"/></button>
             <h3>Configurar respuesta para token <span id="modal-token-name"></span></h3>
             <form id="response-config-form" onsubmit="return false;">
                 <label>Status code:</label><br/>
@@ -261,8 +261,8 @@ if (!isset($_SESSION['is_authenticated'])) {
                 <label>Body:</label><br/>
                 <textarea id="resp-body" rows="8" style="width:100%;"></textarea>
                 <div style="display:flex; gap:8px; margin-top:8px; flex-direction: row-reverse;">
-                    <img class="clickable button-action" title="Guardar respuesta" onclick="saveResponseConfig()" width="24" height="24" src="https://img.icons8.com/windows/32/chat-message-sent.png" alt="chat-message-sent"/>
-                    <img class="clickable button-critical" title="Eliminar respuesta" onclick="deleteResponseConfig()" width="24" height="24" src="https://img.icons8.com/windows/32/delete-chat--v1.png" alt="delete-chat--v1" />
+                    <img class="clickable button-action" title="Guardar respuesta" onclick="saveResponseConfig()" width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/save-as.png" alt="chat-message-sent"/>
+                    <img class="clickable button-critical" title="Eliminar respuesta" onclick="deleteResponseConfig()" width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/delete-sign.png" alt="delete-chat--v1" />
                 </div>
             </form>
         </div>
@@ -280,14 +280,14 @@ if (!isset($_SESSION['is_authenticated'])) {
             <div style="text-align:center; font-size:14px; color:#334155;">
                 <div>Software de API-Testing</div>
                 <div style="font-size:12px;color:#667;">
-                    <a href="https://github.com/JoseGonzalez84/capturadorWebhooks/"><img width="24" height="24" src="https://img.icons8.com/windows/32/github.png" alt="github"/></a>
-                    <a href="www.linkedin.com/in/jose-gonzalez-silva"><img width="24" height="24" src="https://img.icons8.com/windows/32/linkedin-2.png" alt="linkedin-2"/></a>
+                    <a href="https://github.com/JoseGonzalez84/capturadorWebhooks/"><img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/github.png" alt="github"/></a>
+                    <a href="www.linkedin.com/in/jose-gonzalez-silva"><img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/linkedin.png" alt="linkedin-2"/></a>
                 </div>
             </div>
 
             <div style="display:flex;align-items:center;gap:8px;">
                 <a href="?logout=1" title="Cerrar sesión" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px; color:#e53e3e;">
-                    <img width="24" height="24" src="https://img.icons8.com/windows/32/logout-rounded-left.png" alt="logout"/>
+                    <img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/exit.png" alt="logout"/>
                     <span style="font-weight:600;color:#e53e3e;">Cerrar sesión</span>
                 </a>
             </div>

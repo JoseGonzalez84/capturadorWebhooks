@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const toggleBtn = document.getElementById('tokens-toggle-button');
     if (tokenCurrent) tokenCurrent.textContent = currentToken || '-';
     // Mostrar icono inicial (cerrado)
-    if (toggleBtn) toggleBtn.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/windows/32/settings.png" alt="circled-chevron-down"/>';
+    if (toggleBtn) toggleBtn.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/apple-settings.png" alt="circled-chevron-down"/>';
 });
 
 // Toggle del acordeón de tokens
@@ -50,13 +50,13 @@ function toggleTokensAccordion() {
         content.style.display = 'block';
         if (btn) {
             btn.classList.add('open');
-            btn.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/windows/32/settings.png" alt="circled-chevron-up"/>';
+            btn.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/apple-settings.png" alt="circled-chevron-up"/>';
         }
     } else {
         content.style.display = 'none';
         if (btn) {
             btn.classList.remove('open');
-            btn.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/windows/32/settings.png" alt="circled-chevron-down"/>';
+            btn.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/apple-settings.png" alt="circled-chevron-down"/>';
         }
     }
 }
@@ -94,9 +94,9 @@ function renderEndpointsList(endpoints) {
                 <div style="color:#888;font-size:12px;"> ${ep.label ? escapeHtml(ep.label) + ' · ' : ''}${ep.created_at}</div>
             </div>
             <div style="display: table-row;">
-                <img class="clickable button-action" title="Establecer token" onclick="window.location.href='/webhooks/view/${encodeURIComponent(ep.token)}';" width="24" height="24" src="https://img.icons8.com/windows/32/approval.png" alt="approval"/>
-                <img class="clickable button-action" title="Configurar respuesta" onclick="openResponseModal('${escapeHtml(ep.token)}')" width="24" height="24" src="https://img.icons8.com/windows/32/response.png" alt="response"/>
-                <img class="clickable button-critical" title="Borrar token" onclick="deleteEndpoint(${ep.id}, '${ep.token}')" width="24" height="24" src="https://img.icons8.com/windows/32/delete-trash.png" alt="delete-trash">
+                <img class="clickable button-action" title="Establecer token" onclick="window.location.href='/webhooks/view/${encodeURIComponent(ep.token)}';" width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/checked-checkbox.png" alt="approval"/>
+                <img class="clickable button-action" title="Configurar respuesta" onclick="openResponseModal('${escapeHtml(ep.token)}')" width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/feedback.png" alt="response"/>
+                <img class="clickable button-critical" title="Borrar token" onclick="deleteEndpoint(${ep.id}, '${ep.token}')" width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/delete-forever.png" alt="delete-trash">
             </div>
         </div>
     `).join('');
@@ -353,12 +353,12 @@ function createWebhookListItemHTML(webhook) {
                 <span class="list-item-timestamp">${timestamp}</span>
             </div>
             <div class="list-item-url">
-                <img width="24" height="24" src="https://img.icons8.com/windows/32/link.png" alt="link"/>    
+                <img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/link.png" alt="link"/>
                 <span>${truncateUrl(webhook.url, 40)}</span>
             </div>
             <div class="list-item-info">
-                <span><img width="24" height="24" src="https://img.icons8.com/windows/32/globe-earth.png" alt="globe-earth"/> ${webhook.ip_address}</span>
-                <span><img width="24" height="24" src="https://img.icons8.com/windows/32/parking-ticket.png" alt="parking-ticket"/> #${webhook.id}</span>
+                <span><img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/globe.png" alt="globe-earth"/> ${webhook.ip_address}</span>
+                <span><img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/train-ticket.png" alt="parking-ticket"/> #${webhook.id}</span>
             </div>
         </div>
     `;
@@ -460,10 +460,10 @@ function createWebhookDetailHTML(webhook) {
                     <div class="payload-container">
                             <div class="payload-toolbar">
                                 <button class="copy-button" onclick="copyPayload(this, ${webhook.id})">
-                                    <img width="24" height="24" src="https://img.icons8.com/windows/32/copy.png" alt="copy"/>
+                                    <img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/copy.png" alt="copy"/>
                                 </button>
                                 <button class="view-raw-button" onclick="toggleRaw(${webhook.id}, this)">
-                                    <img width="24" height="24" src="https://img.icons8.com/windows/32/raw.png" alt="raw"/>
+                                    <img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/view.png" alt="raw"/>
                                 </button>
                             </div>
                             <pre class="code-block" id="payload-${webhook.id}" data-mode="${isJSON ? 'highlight' : 'raw'}">${isJSON ? syntaxHighlight(formattedBody) : escapeHtml(formattedBody)}</pre>
@@ -531,7 +531,7 @@ function copyPayload(button, webhookId) {
         navigator.clipboard.writeText(text).then(() => {
             // Cambiar icono del botón temporalmente a check, manteniendo el estilo
             const originalHTML = button.innerHTML;
-            button.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/windows/32/checked--v1.png" alt="copied"/>';
+            button.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/order-completed.png" alt="copied"/>';
             button.classList.add('copied');
 
             setTimeout(() => {
@@ -554,7 +554,7 @@ function copyPayload(button, webhookId) {
         try {
             document.execCommand('copy');
             const originalHTML = button.innerHTML;
-            button.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/windows/32/checked--v1.png" alt="copied"/>';
+            button.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/order-completed.png" alt="copied"/>';
             button.classList.add('copied');
 
             setTimeout(() => {
