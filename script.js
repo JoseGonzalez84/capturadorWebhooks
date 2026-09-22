@@ -6,6 +6,7 @@ let webhooksCount = 0;
 let selectedWebhookId = null;
 let webhooksData = [];
 let currentToken = '';
+let selectedConfigToken = '';
 
 // Inicializar la aplicación cuando se carga la página
 document.addEventListener('DOMContentLoaded', function() {
@@ -37,7 +38,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const tokenCurrent = document.getElementById('token-current-value');
     if (tokenCurrent) tokenCurrent.textContent = currentToken || '-';
     updateCurrentTokenTitle();
+    selectedConfigToken = currentToken;
 });
+
+function showToast(message, type = 'info') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+    window.setTimeout(() => toast.classList.add('visible'), 10);
+    window.setTimeout(() => {
+        toast.classList.remove('visible');
+        window.setTimeout(() => toast.remove(), 220);
+    }, 3600);
+}
 
 function updateCurrentTokenTitle() {
     const title = document.getElementById('current-token-title');
@@ -85,14 +106,14 @@ function renderEndpointsList(endpoints) {
     }
 
     container.innerHTML = endpoints.map(ep => `
-        <div class="endpoint-item${currentToken === ep.token ? ' active' : ''}" onclick="loadResponseConfig('${escapeHtml(ep.token)}')">
+        <div class="endpoint-item${selectedConfigToken === ep.token ? ' active' : ''}" onclick="loadResponseConfig('${escapeHtml(ep.token)}')">
             <div class="endpoint-item-title">
                 <strong>${escapeHtml(ep.token)}</strong>
                 <div style="color:#888;font-size:12px;"> ${ep.label ? escapeHtml(ep.label) + ' · ' : ''}${ep.created_at}</div>
             </div>
             <div class="endpoint-actions">
-                <button type="button" class="btn-action" onclick="setToken('${escapeHtml(ep.token)}')">Establecer token</button>
-                <button type="button" class="btn-danger" onclick="deleteEndpoint(${ep.id}, '${ep.token}')">Borrar</button>
+                <button type="button" class="settings-button" onclick="event.stopPropagation(); setToken('${escapeHtml(ep.token)}')">Establecer token</button>
+                <button type="button" class="btn-danger" onclick="event.stopPropagation(); deleteEndpoint(${ep.id}, '${ep.token}')">Borrar</button>
             </div>
         </div>
     `).join('');
@@ -122,6 +143,11 @@ function clearResponseConfigPanel() {
 }
 
 async function loadResponseConfig(token) {
+    selectedConfigToken = token;
+    document.querySelectorAll('.endpoint-item').forEach(item => item.classList.remove('active'));
+    document.querySelectorAll('.endpoint-item').forEach(item => {
+        if (item.querySelector('strong')?.textContent === token) item.classList.add('active');
+    });
     try {
         const resp = await fetch('api.php?action=get_response&token=' + encodeURIComponent(token));
         const data = await resp.json();
@@ -153,14 +179,14 @@ async function saveResponseConfig() {
         });
         const data = await resp.json();
         if (data.status === 'success') {
-            alert('Configuración guardada');
+            showToast('Configuración guardada', 'success');
             closeTokenSettingsModal();
         } else {
-            alert('Error al guardar: ' + data.message);
+            showToast('Error al guardar: ' + data.message, 'error');
         }
     } catch (err) {
         console.error('Error al guardar config:', err);
-        alert('Error de red al guardar');
+        showToast('Error de red al guardar', 'error');
     }
 }
 
@@ -171,15 +197,15 @@ async function deleteResponseConfig() {
         const resp = await fetch('api.php?action=delete_response&token=' + encodeURIComponent(token));
         const data = await resp.json();
         if (data.status === 'success') {
-            alert('Configuración eliminada');
+            showToast('Configuración eliminada', 'success');
             document.getElementById('resp-body').value = '';
             clearResponseConfigPanel();
         } else {
-            alert('Error al eliminar: ' + data.message);
+            showToast('Error al eliminar: ' + data.message, 'error');
         }
     } catch (err) {
         console.error('Error al eliminar config:', err);
-        alert('Error de red al eliminar');
+        showToast('Error de red al eliminar', 'error');
     }
 }
 
@@ -187,11 +213,11 @@ async function deleteResponseConfig() {
 async function createEndpoint() {
     const token = document.getElementById('new-endpoint-token').value.trim();
     const label = document.getElementById('new-endpoint-label').value.trim();
-    if (!token) { alert('El token es requerido'); return; }
+    if (!token) { showToast('El token es requerido', 'error'); return; }
 
     // Validación: solo permitir A-Z a-z 0-9
     if (!/^[A-Za-z0-9]+$/.test(token)) {
-        alert('El token solo puede contener letras y números (A-Z, a-z, 0-9)');
+        showToast('El token solo puede contener letras y números (A-Z, a-z, 0-9)', 'error');
         return;
     }
 
@@ -206,13 +232,13 @@ async function createEndpoint() {
             document.getElementById('new-endpoint-token').value = '';
             document.getElementById('new-endpoint-label').value = '';
             loadEndpoints();
-            alert('Token creado: ' + token);
+            showToast('Token creado: ' + token, 'success');
         } else {
-            alert('Error al crear token: ' + data.message);
+            showToast('Error al crear token: ' + data.message, 'error');
         }
     } catch (err) {
         console.error('Error al crear endpoint:', err);
-        alert('Error de red al crear token');
+        showToast('Error de red al crear token', 'error');
     }
 }
 
@@ -236,11 +262,11 @@ async function deleteEndpoint(id, token) {
                 applyToken();
             }
         } else {
-            alert('Error al borrar token: ' + data.message);
+            showToast('Error al borrar token: ' + data.message, 'error');
         }
     } catch (err) {
         console.error('Error al borrar endpoint:', err);
-        alert('Error de red al borrar token');
+        showToast('Error de red al borrar token', 'error');
     }
 }
 
@@ -532,7 +558,7 @@ function copyPayload(button, webhookId) {
             }, 1500);
         }).catch(err => {
             console.error('Error al copiar:', err);
-            alert('No se pudo copiar al portapapeles');
+            showToast('No se pudo copiar al portapapeles', 'error');
         });
     } else {
         // Fallback para navegadores antiguos
@@ -554,7 +580,7 @@ function copyPayload(button, webhookId) {
                 button.classList.remove('copied');
             }, 1500);
         } catch (err) {
-            alert('No se pudo copiar al portapapeles');
+            showToast('No se pudo copiar al portapapeles', 'error');
         }
 
         document.body.removeChild(textArea);
@@ -625,7 +651,7 @@ function copyToClipboard() {
 
     if (navigator.clipboard) {
         navigator.clipboard.writeText(url).then(() => {
-            alert('URL copiada al portapapeles: ' + url);
+            showToast('URL copiada al portapapeles', 'success');
         });
     } else {
         // Fallback para navegadores más antiguos
@@ -635,7 +661,7 @@ function copyToClipboard() {
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-        alert('URL copiada al portapapeles: ' + url);
+        showToast('URL copiada al portapapeles', 'success');
     }
 }
 
@@ -660,13 +686,13 @@ async function clearWebhooks() {
             selectedWebhookId = null;
             updateStats(0);
             lastUpdateTime = '';
-            alert('Todos los webhooks han sido eliminados correctamente.');
+            showToast('Todos los webhooks han sido eliminados correctamente.', 'success');
         } else {
-            alert('Error al eliminar webhooks: ' + data.message);
+            showToast('Error al eliminar webhooks: ' + data.message, 'error');
         }
     } catch (error) {
         console.error('Error al eliminar webhooks:', error);
-        alert('Error de red al eliminar webhooks.');
+        showToast('Error de red al eliminar webhooks.', 'error');
     }
 }
 
@@ -734,7 +760,7 @@ function toggleRaw(webhookId, button) {
             button.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/windows/32/raw.png" alt="view-raw"/>';
         } catch (e) {
             // No es JSON válido, simplemente mantener texto
-            alert('No es JSON válido para resaltar');
+            showToast('No es JSON válido para resaltar', 'error');
         }
     }
 }

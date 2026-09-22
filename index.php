@@ -239,8 +239,14 @@ if (!isset($_SESSION['is_authenticated'])) {
                         <textarea id="resp-body" rows="10"></textarea>
                         <div class="response-variables-help">
                             <strong>Variables dinámicas</strong>
-                            <p>Fecha: <code>DD-MM-YYYY</code>. Timestamp: <code>YYYY-MM-DD HH:MM:SS</code>.</p>
-                            <p><code>%*CURRENT_DATE*%</code>, <code>%*TIMESTAMP*%</code>, <code>%*RANDOM_DATE*%</code> y <code>%*IDENTIFIER_X_YYY*%</code>.</p>
+                            <p>Se sustituyen cada vez que llega una llamada. La fecha usa el formato <code>DD-MM-YYYY</code> y el timestamp <code>YYYY-MM-DD HH:MM:SS</code>.</p>
+                            <ul>
+                                <li><code>%*CURRENT_DATE*%</code> Fecha actual.</li>
+                                <li><code>%*TIMESTAMP*%</code> Timestamp actual.</li>
+                                <li><code>%*RANDOM_DATE*%</code> Fecha aleatoria entre 1970 y hoy.</li>
+                                <li><code>%*IDENTIFIER_X_YYY*%</code> Identificador aleatorio de X caracteres: <code>NUMERIC</code>, <code>ALPHA</code> o <code>ALL</code>.</li>
+                            </ul>
+                            <p>Ejemplo: <code>{"dato":"%*IDENTIFIER_8_ALL*%"}</code></p>
                         </div>
                         <div class="response-config-actions">
                             <button type="button" class="btn-danger" onclick="deleteResponseConfig()">Borrar configuración</button>
