@@ -33,32 +33,29 @@ document.addEventListener('DOMContentLoaded', function() {
     setupAutoRefresh();
     // Cargar endpoints disponibles
     loadEndpoints();
-    // Actualizar visual del token actual en el header/accordion
+    // Actualizar visual del token actual en el encabezado
     const tokenCurrent = document.getElementById('token-current-value');
-    const toggleBtn = document.getElementById('tokens-toggle-button');
     if (tokenCurrent) tokenCurrent.textContent = currentToken || '-';
-    // Mostrar icono inicial (cerrado)
-    if (toggleBtn) toggleBtn.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/apple-settings.png" alt="circled-chevron-down"/>';
+    updateCurrentTokenTitle();
 });
 
-// Toggle del acordeón de tokens
-function toggleTokensAccordion() {
-    const content = document.getElementById('tokens-accordion-content');
-    const btn = document.getElementById('tokens-toggle-button');
-    const current = content.style.display;
-    if (current === 'none' || !current) {
-        content.style.display = 'block';
-        if (btn) {
-            btn.classList.add('open');
-            btn.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/apple-settings.png" alt="circled-chevron-up"/>';
-        }
-    } else {
-        content.style.display = 'none';
-        if (btn) {
-            btn.classList.remove('open');
-            btn.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/apple-settings.png" alt="circled-chevron-down"/>';
-        }
-    }
+function updateCurrentTokenTitle() {
+    const title = document.getElementById('current-token-title');
+    if (title) title.textContent = currentToken ? ` · Token: ${currentToken}` : '';
+}
+
+function openTokenSettingsModal() {
+    const modal = document.getElementById('token-settings-modal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    loadEndpoints();
+    if (currentToken) loadResponseConfig(currentToken);
+    else clearResponseConfigPanel();
+}
+
+function closeTokenSettingsModal() {
+    const modal = document.getElementById('token-settings-modal');
+    if (modal) modal.style.display = 'none';
 }
 
 // Cargar lista de endpoints desde la API
@@ -88,15 +85,14 @@ function renderEndpointsList(endpoints) {
     }
 
     container.innerHTML = endpoints.map(ep => `
-        <div class="endpoint-item">
+        <div class="endpoint-item${currentToken === ep.token ? ' active' : ''}" onclick="loadResponseConfig('${escapeHtml(ep.token)}')">
             <div class="endpoint-item-title">
                 <strong>${escapeHtml(ep.token)}</strong>
                 <div style="color:#888;font-size:12px;"> ${ep.label ? escapeHtml(ep.label) + ' · ' : ''}${ep.created_at}</div>
             </div>
-            <div style="display: table-row;">
-                <img class="clickable button-action" title="Establecer token" onclick="window.location.href='/webhooks/view/${encodeURIComponent(ep.token)}';" width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/checked-checkbox.png" alt="approval"/>
-                <img class="clickable button-action" title="Configurar respuesta" onclick="openResponseModal('${escapeHtml(ep.token)}')" width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/feedback.png" alt="response"/>
-                <img class="clickable button-critical" title="Borrar token" onclick="deleteEndpoint(${ep.id}, '${ep.token}')" width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/delete-forever.png" alt="delete-trash">
+            <div class="endpoint-actions">
+                <button type="button" class="btn-action" onclick="setToken('${escapeHtml(ep.token)}')">Establecer token</button>
+                <button type="button" class="btn-danger" onclick="deleteEndpoint(${ep.id}, '${ep.token}')">Borrar</button>
             </div>
         </div>
     `).join('');
@@ -114,19 +110,15 @@ function applyTokenFromList(encoded) {
     }
 }
 
-// Modal de configuración de respuesta
-function openResponseModal(token) {
-    const modal = document.getElementById('response-modal');
-    const tokenName = document.getElementById('modal-token-name');
-    tokenName.textContent = token;
-    modal.style.display = 'flex';
-    // cargar configuración actual
-    loadResponseConfig(token);
+function setToken(token) {
+    window.location.href = '/webhooks/view/' + encodeURIComponent(token);
 }
 
-function closeResponseModal() {
-    const modal = document.getElementById('response-modal');
-    modal.style.display = 'none';
+function clearResponseConfigPanel() {
+    document.getElementById('modal-token-name').textContent = '-';
+    document.getElementById('resp-status').value = 200;
+    document.getElementById('resp-ctype').value = 'application/json';
+    document.getElementById('resp-body').value = '';
 }
 
 async function loadResponseConfig(token) {
@@ -162,7 +154,7 @@ async function saveResponseConfig() {
         const data = await resp.json();
         if (data.status === 'success') {
             alert('Configuración guardada');
-            closeResponseModal();
+            closeTokenSettingsModal();
         } else {
             alert('Error al guardar: ' + data.message);
         }
@@ -181,7 +173,7 @@ async function deleteResponseConfig() {
         if (data.status === 'success') {
             alert('Configuración eliminada');
             document.getElementById('resp-body').value = '';
-            closeResponseModal();
+            clearResponseConfigPanel();
         } else {
             alert('Error al eliminar: ' + data.message);
         }
@@ -357,8 +349,8 @@ function createWebhookListItemHTML(webhook) {
                 <span>${truncateUrl(webhook.url, 40)}</span>
             </div>
             <div class="list-item-info">
-                <span><img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/globe.png" alt="globe-earth"/> ${webhook.ip_address}</span>
-                <span><img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/train-ticket.png" alt="parking-ticket"/> #${webhook.id}</span>
+                <span><img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/globe.png" alt="globe"/> ${webhook.ip_address}</span>
+                <span><img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/train-ticket.png" alt="train-ticket"/> #${webhook.id}</span>
             </div>
         </div>
     `;

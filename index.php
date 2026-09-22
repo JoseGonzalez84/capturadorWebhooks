@@ -148,7 +148,7 @@ if (!isset($_SESSION['is_authenticated'])) {
     <header>
             <div id="header-container">
                 <div id="header-container-left">
-                    <h1><img width="64" height="64" src="kraken.png" alt="kraken"/> Capturador de Webhooks</h1>
+                    <h1><img width="64" height="64" src="kraken.png" alt="kraken"/> Capturador de Webhooks <span id="current-token-title"></span></h1>
                 </div>
                 <div id="header-container-right">
                     <?php
@@ -159,50 +159,10 @@ if (!isset($_SESSION['is_authenticated'])) {
                     $displayEndpoint = $endpointExample . ($selectedToken ? $selectedToken : 'your_token_here');
                     ?>
 
-                    <div class="tokens-accordion" id="tokens-accordion">
-                        <div class="tokens-header" id="tokens-accordion-header">
-                            <div class="tokens-left">
-                                <strong><span style="visibility:hidden" id="token-current-value"><?php echo htmlspecialchars($selectedToken); ?></span></strong>
-                            </div>
-                            <div class="tokens-center">
-                                <code id="token-endpoint-display"><?php echo $displayEndpoint; ?></code>
-                            </div>
-                            <div class="tokens-right">
-                                <img class="clickable button-action" onclick="copyToClipboard()" title="Copiar al portapapeles" width="32" height="32" src="https://img.icons8.com/liquid-glass-color/32/link.png" alt="link"/>
-                                <button id="tokens-toggle-button" onclick="toggleTokensAccordion()" title="Configuración">Abrir</button>
-                            </div>
-                        </div>
-
-                        <div class="tokens-content" id="tokens-accordion-content" style="display:none;">
-                            <div style="display:flex; gap:16px; align-items:flex-start;">
-                                <div style="flex:2;">
-                                    <div class="create-endpoint-title">
-                                        <h4>Crear nuevo token</h4>
-                                        <img class="clickable button-action" onclick="createEndpoint()" width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/add-folder.png" alt="add-file" title="Crear nuevo endpoint"/>
-                                    </div>
-
-                                    <form id="create-endpoint-form" onsubmit="return false;">
-                                        <div class="endpoint-form-field">
-                                            <label>Token (texto único):</label><br/>
-                                            <input id="new-endpoint-token" type="text" placeholder="abc123"
-                                                pattern="[A-Za-z0-9]+" title="Solo letras A-Z (mayúsculas/minúsculas) y números"
-                                                maxlength="64" autocomplete="off"
-                                                oninput="this.value = this.value.replace(/[^A-Za-z0-9]/g, '')" />
-                                        </div>
-                                        <div class="endpoint-form-field">
-                                            <label>Etiqueta (opcional):</label><br/>
-                                            <input id="new-endpoint-label" type="text" placeholder="Descripción" />
-                                        </div>
-                                    </form>
-                                </div>
-                                <div style="flex:3;">
-                                    <h4>Tokens existentes</h4>
-                                    <div id="endpoints-list">
-                                        <!-- Lista dinámica de endpoints -->
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="tokens-toolbar">
+                        <code id="token-endpoint-display"><?php echo $displayEndpoint; ?></code>
+                        <img class="clickable button-action" onclick="copyToClipboard()" title="Copiar al portapapeles" width="32" height="32" src="https://img.icons8.com/liquid-glass-color/32/link.png" alt="link"/>
+                        <button type="button" class="settings-button" onclick="openTokenSettingsModal()">Configuración</button>
                     </div>
                 </div>
             </div>
@@ -247,35 +207,48 @@ if (!isset($_SESSION['is_authenticated'])) {
     </div>
 
     <script src="script.js"></script>
-    <!-- Modal para configuración de respuesta por token -->
-    <div id="response-modal" class="modal" style="display:none;">
-        <div class="modal-backdrop" onclick="closeResponseModal()"></div>
-        <div class="modal-content">
-            <img class="clickable button-close" title="Cerrar ventana" onclick="closeResponseModal()" width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/close-window.png" alt="close-window"/></button>
-            <h3>Configurar respuesta para token <span id="modal-token-name"></span></h3>
-            <form id="response-config-form" onsubmit="return false;">
-                <label>Status code:</label><br/>
-                <input id="resp-status" type="number" value="200" min="100" max="599" />
-                <label>Content-Type:</label><br/>
-                <input id="resp-ctype" type="text" value="application/json" />
-                <label>Body:</label><br/>
-                <textarea id="resp-body" rows="8" style="width:100%;"></textarea>
-                <div class="response-variables-help">
-                    <strong>Variables dinámicas</strong>
-                    <p>Se sustituyen cada vez que llega una llamada. La fecha usa el formato <code>DD-MM-YYYY</code> y el timestamp <code>YYYY-MM-DD HH:MM:SS</code>.</p>
-                    <ul>
-                        <li><code>%*CURRENT_DATE*%</code> Fecha actual</li>
-                        <li><code>%*TIMESTAMP*%</code> Timestamp actual</li>
-                        <li><code>%*RANDOM_DATE*%</code> Fecha aleatoria entre 1970 y hoy</li>
-                        <li><code>%*IDENTIFIER_X_YYY*%</code> Identificador aleatorio de X caracteres: <code>NUMERIC</code>, <code>ALPHA</code> o <code>ALL</code></li>
-                    </ul>
-                    <p>Ejemplo: <code>{"dato":"%*IDENTIFIER_8_ALL*%"}</code></p>
+    <div id="token-settings-modal" class="modal" style="display:none;">
+        <div class="modal-backdrop" onclick="closeTokenSettingsModal()"></div>
+        <div class="modal-content token-settings-content">
+            <button type="button" class="modal-close" title="Cerrar ventana" onclick="closeTokenSettingsModal()">&times;</button>
+            <h2>Configuración de tokens</h2>
+            <form id="create-endpoint-form" class="create-token-form" onsubmit="event.preventDefault(); createEndpoint();">
+                <div class="endpoint-form-field">
+                    <label for="new-endpoint-token">Token (texto único)</label>
+                    <input id="new-endpoint-token" type="text" placeholder="abc123" pattern="[A-Za-z0-9]+" maxlength="64" autocomplete="off" oninput="this.value = this.value.replace(/[^A-Za-z0-9]/g, '')" />
                 </div>
-                <div style="display:flex; gap:8px; margin-top:8px; flex-direction: row-reverse;">
-                    <img class="clickable button-action" title="Guardar respuesta" onclick="saveResponseConfig()" width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/save-as.png" alt="chat-message-sent"/>
-                    <img class="clickable button-critical" title="Eliminar respuesta" onclick="deleteResponseConfig()" width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/delete-sign.png" alt="delete-chat--v1" />
+                <div class="endpoint-form-field">
+                    <label for="new-endpoint-label">Etiqueta (opcional)</label>
+                    <input id="new-endpoint-label" type="text" placeholder="Descripción" />
                 </div>
+                <button type="submit" class="create-button">Crear</button>
             </form>
+            <div class="token-settings-grid">
+                <section class="token-list-panel">
+                    <h3>Tokens disponibles</h3>
+                    <div id="endpoints-list"><!-- Lista dinámica de endpoints --></div>
+                </section>
+                <section class="response-config-panel">
+                    <h3>Respuesta del token <span id="modal-token-name">-</span></h3>
+                    <form id="response-config-form" onsubmit="return false;">
+                        <label for="resp-status">Código de respuesta</label>
+                        <input id="resp-status" type="number" value="200" min="100" max="599" />
+                        <label for="resp-ctype">Tipo de respuesta</label>
+                        <input id="resp-ctype" type="text" value="application/json" />
+                        <label for="resp-body">Body de la respuesta</label>
+                        <textarea id="resp-body" rows="10"></textarea>
+                        <div class="response-variables-help">
+                            <strong>Variables dinámicas</strong>
+                            <p>Fecha: <code>DD-MM-YYYY</code>. Timestamp: <code>YYYY-MM-DD HH:MM:SS</code>.</p>
+                            <p><code>%*CURRENT_DATE*%</code>, <code>%*TIMESTAMP*%</code>, <code>%*RANDOM_DATE*%</code> y <code>%*IDENTIFIER_X_YYY*%</code>.</p>
+                        </div>
+                        <div class="response-config-actions">
+                            <button type="button" class="btn-danger" onclick="deleteResponseConfig()">Borrar configuración</button>
+                            <button type="button" class="btn-action" onclick="saveResponseConfig()">Guardar configuración</button>
+                        </div>
+                    </form>
+                </section>
+            </div>
         </div>
     </div>
     <footer>
