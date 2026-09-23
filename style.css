@@ -764,9 +764,20 @@ button:hover {
 }
 
 .endpoint-item-title {
+    flex: 1 1 auto;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    overflow: hidden;
+}
+
+.endpoint-item-title strong,
+.endpoint-item-title div {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .endpoint-form-field {
@@ -1335,6 +1346,7 @@ button:hover,
 }
 
 .endpoint-item {
+    min-width: 0;
     gap: 12px;
     padding: 12px 4px;
     cursor: cell;
@@ -1355,6 +1367,7 @@ button:hover,
 }
 
 .endpoint-actions {
+    flex: 0 0 auto;
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
@@ -1493,15 +1506,21 @@ button:hover,
 }
 
 .toast {
-    padding: 12px 16px;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    min-height: 64px;
+    padding: 16px 44px 16px 18px;
     border: 1px solid var(--line);
     border-left: 4px solid var(--accent);
     border-radius: 7px;
     background: var(--surface);
     color: var(--text);
     box-shadow: 0 12px 28px rgba(0, 0, 0, .28);
-    font-size: 13px;
-    line-height: 1.4;
+    font-size: 16px;
+    line-height: 1.5;
+    pointer-events: auto;
     opacity: 0;
     transform: translateX(24px);
     transition: opacity .2s ease, transform .2s ease;
@@ -1552,4 +1571,31 @@ button:hover,
         gap: 18px;
         flex-wrap: wrap;
     }
+}
+
+.toast-message {
+    flex: 1 1 auto;
+    overflow-wrap: anywhere;
+}
+
+.toast-close {
+    position: absolute;
+    top: 7px;
+    right: 8px;
+    width: 26px;
+    height: 26px;
+    margin: 0;
+    padding: 0;
+    justify-content: center;
+    background: transparent;
+    color: var(--text-muted);
+    border: 0;
+    box-shadow: none;
+    font-size: 22px;
+    line-height: 1;
+}
+
+.toast-close:hover {
+    background: var(--surface-hover);
+    color: var(--text);
 }

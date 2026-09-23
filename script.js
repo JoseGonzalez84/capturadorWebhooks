@@ -54,13 +54,30 @@ function showToast(message, type = 'info') {
 
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-    toast.textContent = message;
-    container.appendChild(toast);
-    window.setTimeout(() => toast.classList.add('visible'), 10);
-    window.setTimeout(() => {
+    toast.setAttribute('role', 'status');
+
+    const messageElement = document.createElement('span');
+    messageElement.className = 'toast-message';
+    messageElement.textContent = message;
+
+    const closeButton = document.createElement('button');
+    closeButton.type = 'button';
+    closeButton.className = 'toast-close';
+    closeButton.setAttribute('aria-label', 'Cerrar aviso');
+    closeButton.innerHTML = '&times;';
+
+    let dismissTimer;
+    const dismiss = () => {
+        window.clearTimeout(dismissTimer);
         toast.classList.remove('visible');
         window.setTimeout(() => toast.remove(), 220);
-    }, 3600);
+    };
+
+    closeButton.addEventListener('click', dismiss);
+    toast.append(messageElement, closeButton);
+    container.appendChild(toast);
+    window.setTimeout(() => toast.classList.add('visible'), 10);
+    dismissTimer = window.setTimeout(dismiss, 5000);
 }
 
 function updateCurrentTokenTitle() {
@@ -110,7 +127,7 @@ function renderEndpointsList(endpoints) {
 
     container.innerHTML = endpoints.map(ep => `
         <div class="endpoint-item${selectedConfigToken === ep.token ? ' active' : ''}" onclick="loadResponseConfig('${escapeHtml(ep.token)}')">
-            <div class="endpoint-item-title">
+            <div class="endpoint-item-title" title="${escapeHtml(ep.token)}">
                 <strong>${escapeHtml(ep.token)}</strong>
                 <div style="color:#888;font-size:12px;"> ${ep.label ? escapeHtml(ep.label) + ' · ' : ''}${ep.created_at}</div>
             </div>
