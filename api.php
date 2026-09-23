@@ -84,6 +84,15 @@ switch ($action) {
         $status = $_POST['status'] ?? $input['status'] ?? null;
         $contentType = $_POST['content_type'] ?? $input['content_type'] ?? null;
         $body = $_POST['body'] ?? $input['body'] ?? null;
+        $allowedMethods = $_POST['allowed_methods'] ?? $input['allowed_methods'] ?? ['ALL'];
+
+        $contentType = in_array($contentType, ['application/json', 'application/x-www-form-urlencoded'], true)
+            ? $contentType
+            : 'application/json';
+
+        if (!is_array($allowedMethods)) $allowedMethods = [$allowedMethods];
+        $allowedMethods = array_values(array_intersect(array_map('strtoupper', $allowedMethods), ['ALL', 'GET', 'POST', 'PATCH', 'PUT', 'DELETE']));
+        if (empty($allowedMethods) || in_array('ALL', $allowedMethods, true)) $allowedMethods = ['ALL'];
 
         if (!$tokenParam) {
             echo json_encode(['status' => 'error', 'message' => 'token requerido']);
@@ -91,7 +100,7 @@ switch ($action) {
         }
 
         try {
-            $ok = Database::upsertResponse($tokenParam, (int)$status, $contentType ?? 'application/json', $body ?? '');
+            $ok = Database::upsertResponse($tokenParam, (int)$status, $contentType ?? 'application/json', $body ?? '', json_encode($allowedMethods));
             echo json_encode(['status' => $ok ? 'success' : 'error']);
         } catch (Exception $e) {
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
@@ -111,7 +120,7 @@ switch ($action) {
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
         }
         break;
-        
+
     case 'get_new_webhooks':
         $since = $_GET['since'] ?? '';
         if ($since) {
@@ -125,7 +134,7 @@ switch ($action) {
             echo json_encode(['status' => 'error', 'message' => 'Parámetro since requerido']);
         }
         break;
-        
+
     case 'clear_webhooks':
         // Opcional: función para limpiar la base de datos
         try {
@@ -141,7 +150,7 @@ switch ($action) {
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
         }
         break;
-        
+
     default:
         echo json_encode(['status' => 'error', 'message' => 'Acción no válida']);
 }

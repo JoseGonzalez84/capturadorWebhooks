@@ -214,25 +214,38 @@ if (!isset($_SESSION['is_authenticated'])) {
         <div class="modal-backdrop" onclick="closeTokenSettingsModal()"></div>
         <div class="modal-content token-settings-content">
             <button type="button" class="modal-close" title="Cerrar ventana" onclick="closeTokenSettingsModal()">&times;</button>
-            <h2>Configuración de tokens</h2>
-            <form id="create-endpoint-form" class="create-token-form" onsubmit="event.preventDefault(); createEndpoint();">
-                <div class="endpoint-form-field">
-                    <label for="new-endpoint-token">Token (texto único)</label>
-                    <input id="new-endpoint-token" type="text" placeholder="abc123" pattern="[A-Za-z0-9]+" maxlength="64" autocomplete="off" oninput="this.value = this.value.replace(/[^A-Za-z0-9]/g, '')" />
-                </div>
-                <div class="endpoint-form-field">
-                    <label for="new-endpoint-label">Etiqueta (opcional)</label>
-                    <input id="new-endpoint-label" type="text" placeholder="Descripción" />
-                </div>
-                <button type="submit" class="create-button">Crear</button>
-            </form>
+            <h2>Configuración</h2>
             <div class="token-settings-grid">
                 <section class="token-list-panel">
                     <h3>Tokens disponibles</h3>
                     <div id="endpoints-list"><!-- Lista dinámica de endpoints --></div>
+                    <form id="create-endpoint-form" class="create-token-form" onsubmit="event.preventDefault(); createEndpoint();">
+                        <h3>Crear nuevo token</h3>
+                        <div class="endpoint-form-field">
+                            <label for="new-endpoint-token">Token (texto único)</label>
+                            <input id="new-endpoint-token" type="text" placeholder="abc123" pattern="[A-Za-z0-9]+" maxlength="64" autocomplete="off" oninput="this.value = this.value.replace(/[^A-Za-z0-9]/g, '')" />
+                        </div>
+                        <div class="endpoint-form-field">
+                            <label for="new-endpoint-label">Etiqueta (opcional)</label>
+                            <input id="new-endpoint-label" type="text" placeholder="Descripción" />
+                        </div>
+                        <button type="submit" class="create-button">Crear</button>
+                    </form>
                 </section>
                 <section class="response-config-panel">
-                    <h3>Respuesta del token <span id="modal-token-name">-</span></h3>
+                    <h3>Configuración de <strong id="modal-token-name">-</strong></h3>
+                    <div class="method-config-header">
+                        <label for="resp-methods">Métodos permitidos</label>
+                        <select id="resp-methods" multiple size="3" onchange="handleAllowedMethodsChange()">
+                            <option value="ALL" selected>Todos</option>
+                            <option value="GET">GET</option>
+                            <option value="POST">POST</option>
+                            <option value="PATCH">PATCH</option>
+                            <option value="PUT">PUT</option>
+                            <option value="DELETE">DELETE</option>
+                        </select>
+                    </div>
+                    <h4>Respuesta</h4>
                     <form id="response-config-form" onsubmit="return false;">
                         <div class="properties-endpoint-form">
                             <div class="endpoint-form-field">
@@ -241,7 +254,10 @@ if (!isset($_SESSION['is_authenticated'])) {
                             </div>
                             <div class="endpoint-form-field">
                                 <label for="resp-ctype">Tipo de respuesta</label>
-                                <input id="resp-ctype" type="text" value="application/json">
+                                <select id="resp-ctype">
+                                    <option value="application/json">JSON</option>
+                                    <option value="application/x-www-form-urlencoded">URL Encoded</option>
+                                </select>
                             </div>
                         </div>
                         <div class="editor-label-row">

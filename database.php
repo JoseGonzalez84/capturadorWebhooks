@@ -78,9 +78,22 @@ class Database
                 status_code INTEGER DEFAULT 200,
                 content_type VARCHAR(100) DEFAULT 'application/json',
                 body TEXT,
+                allowed_methods TEXT DEFAULT '[\"ALL\"]',
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )";
             self::$connection->exec($sql3);
+            try {
+                $columns = self::$connection->query("PRAGMA table_info(endpoint_responses)")->fetchAll(PDO::FETCH_ASSOC);
+                $hasAllowedMethods = false;
+                foreach ($columns as $column) {
+                    if (($column['name'] ?? '') === 'allowed_methods') $hasAllowedMethods = true;
+                }
+                if (!$hasAllowedMethods) {
+                    self::$connection->exec("ALTER TABLE endpoint_responses ADD COLUMN allowed_methods TEXT DEFAULT '[\"ALL\"]'");
+                }
+            } catch (Exception $e) {
+                // La tabla ya puede estar disponible sin permisos de inspección.
+            }
         } else {
             $sql = "CREATE TABLE IF NOT EXISTS webhook_logs (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -128,9 +141,18 @@ class Database
                     status_code INT DEFAULT 200,
                     content_type VARCHAR(100) DEFAULT 'application/json',
                     body TEXT,
+                    allowed_methods TEXT DEFAULT '[\"ALL\"]',
                     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
                 )";
                 self::$connection->exec($sql3);
+                try {
+                    $colCheck = self::$connection->query("SHOW COLUMNS FROM endpoint_responses LIKE 'allowed_methods'");
+                    if (!$colCheck || $colCheck->rowCount() === 0) {
+                        self::$connection->exec("ALTER TABLE endpoint_responses ADD COLUMN allowed_methods TEXT DEFAULT '[\"ALL\"]'");
+                    }
+                } catch (Exception $e) {
+                    // Ignorar si el usuario de la base de datos no puede migrar el esquema.
+                }
             } catch (Exception $e) {
                 // ignore
             }
@@ -143,7 +165,7 @@ class Database
     public static function logWebhook($data)
     {
         $db = self::getConnection();
-        $sql = "INSERT INTO webhook_logs (method, url, headers, body, ip_address, user_agent, content_type) 
+        $sql = "INSERT INTO webhook_logs (method, url, headers, body, ip_address, user_agent, content_type)
                 VALUES (:method, :url, :headers, :body, :ip_address, :user_agent, :content_type)";
 
         $stmt = $db->prepare($sql);
@@ -166,7 +188,7 @@ class Database
         $db = self::getConnection();
 
         // Intentar insertar incluyendo endpoint_token (la columna puede existir o no)
-        $sql = "INSERT INTO webhook_logs (method, url, headers, body, ip_address, user_agent, content_type, endpoint_token) 
+        $sql = "INSERT INTO webhook_logs (method, url, headers, body, ip_address, user_agent, content_type, endpoint_token)
                 VALUES (:method, :url, :headers, :body, :ip_address, :user_agent, :content_type, :endpoint_token)";
 
         $stmt = $db->prepare($sql);
@@ -263,38 +285,40 @@ class Database
     public static function getResponseByToken($token)
     {
         $db = self::getConnection();
-        $sql = "SELECT status_code, content_type, body FROM endpoint_responses WHERE token = :token LIMIT 1";
+        $sql = "SELECT status_code, content_type, body, allowed_methods FROM endpoint_responses WHERE token = :token LIMIT 1";
         $stmt = $db->prepare($sql);
         $stmt->execute([':token' => $token]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public static function upsertResponse($token, $status_code, $content_type, $body)
+    public static function upsertResponse($token, $status_code, $content_type, $body, $allowed_methods = '["ALL"]')
     {
         $db = self::getConnection();
         // Intentar UPDATE, si no existe INSERT
         try {
-            $sql = "INSERT INTO endpoint_responses (token, status_code, content_type, body) VALUES (:token, :status_code, :content_type, :body)
-                    ON CONFLICT(token) DO UPDATE SET status_code = :status_code_u, content_type = :content_type_u, body = :body_u, updated_at = CURRENT_TIMESTAMP";
+                $sql = "INSERT INTO endpoint_responses (token, status_code, content_type, body, allowed_methods) VALUES (:token, :status_code, :content_type, :body, :allowed_methods)
+                    ON CONFLICT(token) DO UPDATE SET status_code = :status_code_u, content_type = :content_type_u, body = :body_u, allowed_methods = :allowed_methods_u, updated_at = CURRENT_TIMESTAMP";
             $stmt = $db->prepare($sql);
             $stmt->execute([
                 ':token' => $token,
                 ':status_code' => $status_code,
                 ':content_type' => $content_type,
                 ':body' => $body,
+                ':allowed_methods' => $allowed_methods,
                 ':status_code_u' => $status_code,
                 ':content_type_u' => $content_type,
                 ':body_u' => $body
+                ,':allowed_methods_u' => $allowed_methods
             ]);
             return true;
         } catch (Exception $e) {
             // Si DB no soporta ON CONFLICT (MySQL), usar fallback: try update then insert
             try {
-                $upd = $db->prepare("UPDATE endpoint_responses SET status_code = :status_code, content_type = :content_type, body = :body, updated_at = CURRENT_TIMESTAMP WHERE token = :token");
-                $upd->execute([':status_code' => $status_code, ':content_type' => $content_type, ':body' => $body, ':token' => $token]);
+                $upd = $db->prepare("UPDATE endpoint_responses SET status_code = :status_code, content_type = :content_type, body = :body, allowed_methods = :allowed_methods, updated_at = CURRENT_TIMESTAMP WHERE token = :token");
+                $upd->execute([':status_code' => $status_code, ':content_type' => $content_type, ':body' => $body, ':allowed_methods' => $allowed_methods, ':token' => $token]);
                 if ($upd->rowCount() > 0) return true;
-                $ins = $db->prepare("INSERT INTO endpoint_responses (token, status_code, content_type, body) VALUES (:token, :status_code, :content_type, :body)");
-                $ins->execute([':token' => $token, ':status_code' => $status_code, ':content_type' => $content_type, ':body' => $body]);
+                $ins = $db->prepare("INSERT INTO endpoint_responses (token, status_code, content_type, body, allowed_methods) VALUES (:token, :status_code, :content_type, :body, :allowed_methods)");
+                $ins->execute([':token' => $token, ':status_code' => $status_code, ':content_type' => $content_type, ':body' => $body, ':allowed_methods' => $allowed_methods]);
                 return true;
             } catch (Exception $e2) {
                 return false;

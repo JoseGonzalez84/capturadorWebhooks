@@ -1302,11 +1302,18 @@ button:hover,
 
 .create-token-form {
     display: grid;
-    grid-template-columns: 1fr 1.4fr auto;
+    grid-template-columns: 1fr;
     gap: 12px;
     align-items: end;
-    padding-bottom: 20px;
+    margin-top: 18px;
+    padding-top: 18px;
+    padding-bottom: 0;
     border-bottom: 1px solid var(--line);
+}
+
+.create-token-form h3 {
+    grid-column: 1 / -1;
+    margin: 0;
 }
 
 .endpoint-form-field,
@@ -1343,6 +1350,13 @@ button:hover,
 .response-config-panel h3 {
     margin: 0 0 12px;
     color: var(--text);
+}
+
+.response-config-panel h3 strong {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .endpoint-item {
@@ -1598,4 +1612,44 @@ button:hover,
 .toast-close:hover {
     background: var(--surface-hover);
     color: var(--text);
+}
+
+.method-config-header {
+    display: grid;
+    gap: 7px;
+    margin-bottom: 18px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-left: 3px solid #2563eb;
+    border-radius: 6px;
+    background: var(--surface-raised);
+}
+
+.method-config-header > span {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.method-config-header strong {
+    color: var(--text);
+    font-family: var(--mono);
+}
+
+.method-config-header label {
+    margin-top: 3px;
+}
+
+#resp-methods,
+#resp-ctype {
+    width: 100%;
+    padding: 8px 10px;
+    border: 2px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface-raised);
+    color: var(--text);
+    font-family: var(--mono);
+}
+
+#resp-methods {
+    min-height: 82px;
 }

@@ -107,6 +107,20 @@ try {
     if ($token) {
         $respCfg = Database::getResponseByToken($token);
         if ($respCfg && isset($respCfg['status_code'])) {
+            $allowedMethods = json_decode($respCfg['allowed_methods'] ?? '["ALL"]', true);
+            if (!is_array($allowedMethods) || empty($allowedMethods)) $allowedMethods = ['ALL'];
+            if (!in_array('ALL', $allowedMethods, true) && !in_array(strtoupper($method), $allowedMethods, true)) {
+                http_response_code(405);
+                header('Allow: ' . implode(', ', $allowedMethods));
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Método no permitido',
+                    'method' => $method,
+                    'allowed_methods' => $allowedMethods
+                ]);
+                exit;
+            }
             $code = (int)$respCfg['status_code'];
             $ctype = $respCfg['content_type'] ?? 'application/json';
             $respBody = expandResponseVariables($respCfg['body'] ?? '');

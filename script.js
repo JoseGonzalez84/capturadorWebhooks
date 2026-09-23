@@ -159,7 +159,37 @@ function clearResponseConfigPanel() {
     document.getElementById('modal-token-name').textContent = '-';
     document.getElementById('resp-status').value = 200;
     document.getElementById('resp-ctype').value = 'application/json';
+    setAllowedMethods(['ALL']);
     setResponseEditorValue('');
+}
+
+function setAllowedMethods(methods) {
+    const select = document.getElementById('resp-methods');
+    if (!select) return;
+    const values = Array.isArray(methods) && methods.length ? methods : ['ALL'];
+    Array.from(select.options).forEach(option => {
+        option.selected = values.includes(option.value);
+    });
+    handleAllowedMethodsChange();
+}
+
+function handleAllowedMethodsChange() {
+    const select = document.getElementById('resp-methods');
+    if (!select) return;
+    const selected = Array.from(select.selectedOptions).map(option => option.value);
+    const allOption = select.querySelector('option[value="ALL"]');
+    if (selected.includes('ALL') && selected.length > 1) {
+        Array.from(select.options).forEach(option => { option.selected = option.value === 'ALL'; });
+    } else if (selected.length === 0) {
+        allOption.selected = true;
+    }
+}
+
+function getAllowedMethods() {
+    const select = document.getElementById('resp-methods');
+    if (!select) return ['ALL'];
+    const selected = Array.from(select.selectedOptions).map(option => option.value);
+    return selected.includes('ALL') || selected.length === 0 ? ['ALL'] : selected;
 }
 
 function initializeResponseEditor() {
@@ -213,6 +243,13 @@ async function loadResponseConfig(token) {
             document.getElementById('modal-token-name').textContent = token;
             document.getElementById('resp-status').value = cfg.status_code || 200;
             document.getElementById('resp-ctype').value = cfg.content_type || 'application/json';
+            let allowedMethods = ['ALL'];
+            try {
+                allowedMethods = JSON.parse(cfg.allowed_methods || '["ALL"]');
+            } catch (error) {
+                allowedMethods = ['ALL'];
+            }
+            setAllowedMethods(allowedMethods);
             setResponseEditorValue(cfg.body || '');
             if (responseEditor) responseEditor.refresh();
         } else {
@@ -228,12 +265,13 @@ async function saveResponseConfig() {
     const status = parseInt(document.getElementById('resp-status').value) || 200;
     const ctype = document.getElementById('resp-ctype').value || 'application/json';
     const body = getResponseEditorValue() || '';
+    const allowedMethods = getAllowedMethods();
 
     try {
         const resp = await fetch('api.php?action=save_response', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token: token, status: status, content_type: ctype, body: body })
+            body: JSON.stringify({ token: token, status: status, content_type: ctype, body: body, allowed_methods: allowedMethods })
         });
         const data = await resp.json();
         if (data.status === 'success') {
