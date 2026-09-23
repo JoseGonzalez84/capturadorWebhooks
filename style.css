@@ -1337,6 +1337,14 @@ button:hover,
 .endpoint-item {
     gap: 12px;
     padding: 12px 4px;
+    cursor: cell;
+}
+
+.properties-endpoint-form {
+    display: grid;
+    grid-auto-flow: column;
+    gap: 12px;
+    grid-template-columns: 1fr 3fr;
 }
 
 .endpoint-item.active {

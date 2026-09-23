@@ -231,10 +231,16 @@ if (!isset($_SESSION['is_authenticated'])) {
                 <section class="response-config-panel">
                     <h3>Respuesta del token <span id="modal-token-name">-</span></h3>
                     <form id="response-config-form" onsubmit="return false;">
-                        <label for="resp-status">Código de respuesta</label>
-                        <input id="resp-status" type="number" value="200" min="100" max="599" />
-                        <label for="resp-ctype">Tipo de respuesta</label>
-                        <input id="resp-ctype" type="text" value="application/json" />
+                        <div class="properties-endpoint-form">
+                            <div class="endpoint-form-field">
+                                <label for="resp-status">Código de respuesta</label>
+                                <input id="resp-status" type="number" value="200" min="100" max="599">
+                            </div>
+                            <div class="endpoint-form-field">
+                                <label for="resp-ctype">Tipo de respuesta</label>
+                                <input id="resp-ctype" type="text" value="application/json">
+                            </div>
+                        </div>
                         <label for="resp-body">Body de la respuesta</label>
                         <textarea id="resp-body" rows="10"></textarea>
                         <div class="response-variables-help">
