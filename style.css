@@ -1378,6 +1378,39 @@ button:hover,
     min-height: 150px;
 }
 
+.editor-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.editor-label-row label {
+    margin: 0;
+}
+
+.editor-action {
+    margin: 0;
+    padding: 6px 10px;
+    background: #3c3c3c;
+    color: #d4d4d4;
+    border: 1px solid #555;
+    border-radius: 4px;
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 12px;
+    box-shadow: none;
+}
+
+.editor-action:hover {
+    background: #505050;
+}
+
+.response-config-panel .CodeMirror {
+    width: 100%;
+    margin-bottom: 2px;
+}
+
 .response-config-actions {
     display: flex;
     justify-content: flex-end;
@@ -1403,6 +1436,12 @@ button:hover,
         padding: 20px 0 0;
         border-left: 0;
         border-top: 1px solid var(--line);
+    }
+
+    .editor-label-row {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
     }
 }
 

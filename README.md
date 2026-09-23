@@ -1,6 +1,12 @@
 # capturadorWebhooks
 Capturador de Webhooks para testing de API
 
+## Editor de código
+
+La interfaz usa CodeMirror 5.65.16 para mostrar payloads y editar bodies JSON. La copia necesaria está incluida en `vendor/codemirror`, junto con un tema local inspirado en Monaco; no requiere npm, compilación ni conexión a CDN en producción.
+
+En la configuración de tokens, el botón **Formatear JSON** valida y aplica indentación de dos espacios al body de respuesta.
+
 ## Uso de tokens (endpoints personalizados)
 
 Este proyecto soporta múltiples "instancias" identificadas por un token sencillo en la URL. Cada usuario o servicio puede usar su token para enviar webhooks a un endpoint dedicado y visualizar sólo sus registros.

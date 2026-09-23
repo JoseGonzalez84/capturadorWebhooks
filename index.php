@@ -139,9 +139,8 @@ if (!isset($_SESSION['is_authenticated'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Capturador de Webhooks</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="vendor/codemirror/lib/codemirror.min.css">
+    <link rel="stylesheet" href="vendor/codemirror/codemirror-monaco.css">
     <link rel="shortcut icon" href="kraken.png" type="image/x-icon" />
 </head>
 <body>
@@ -206,6 +205,10 @@ if (!isset($_SESSION['is_authenticated'])) {
         </div>
     </div>
 
+    <script src="vendor/codemirror/lib/codemirror.min.js"></script>
+    <script src="vendor/codemirror/mode/javascript/javascript.min.js"></script>
+    <script src="vendor/codemirror/addon/edit/closebrackets.min.js"></script>
+    <script src="vendor/codemirror/addon/edit/matchbrackets.min.js"></script>
     <script src="script.js"></script>
     <div id="token-settings-modal" class="modal" style="display:none;">
         <div class="modal-backdrop" onclick="closeTokenSettingsModal()"></div>
@@ -241,7 +244,10 @@ if (!isset($_SESSION['is_authenticated'])) {
                                 <input id="resp-ctype" type="text" value="application/json">
                             </div>
                         </div>
-                        <label for="resp-body">Body de la respuesta</label>
+                        <div class="editor-label-row">
+                            <label for="resp-body">Body de la respuesta</label>
+                            <button type="button" class="editor-action" onclick="formatResponseJson()" title="Formatear como JSON">{ } Formatear JSON</button>
+                        </div>
                         <textarea id="resp-body" rows="10"></textarea>
                         <div class="response-variables-help">
                             <strong>Variables dinámicas</strong>

@@ -7,9 +7,12 @@ let selectedWebhookId = null;
 let webhooksData = [];
 let currentToken = '';
 let selectedConfigToken = '';
+let responseEditor = null;
+const payloadEditors = new Map();
 
 // Inicializar la aplicación cuando se carga la página
 document.addEventListener('DOMContentLoaded', function() {
+    initializeResponseEditor();
     // Inicializar token desde querystring, ruta /webhooks/view/<token> o input
     const urlParams = new URLSearchParams(window.location.search);
     currentToken = urlParams.get('token') || '';
@@ -139,7 +142,44 @@ function clearResponseConfigPanel() {
     document.getElementById('modal-token-name').textContent = '-';
     document.getElementById('resp-status').value = 200;
     document.getElementById('resp-ctype').value = 'application/json';
-    document.getElementById('resp-body').value = '';
+    setResponseEditorValue('');
+}
+
+function initializeResponseEditor() {
+    const textarea = document.getElementById('resp-body');
+    if (!textarea || typeof CodeMirror === 'undefined') return;
+
+    responseEditor = CodeMirror.fromTextArea(textarea, {
+        mode: { name: 'javascript', json: true },
+        lineNumbers: true,
+        lineWrapping: true,
+        matchBrackets: true,
+        autoCloseBrackets: true,
+        tabSize: 2,
+        indentUnit: 2,
+        theme: 'monaco-local'
+    });
+}
+
+function setResponseEditorValue(value) {
+    if (responseEditor) responseEditor.setValue(value || '');
+    else document.getElementById('resp-body').value = value || '';
+}
+
+function getResponseEditorValue() {
+    return responseEditor ? responseEditor.getValue() : document.getElementById('resp-body').value;
+}
+
+function formatResponseJson() {
+    const value = getResponseEditorValue().trim();
+    if (!value) return;
+
+    try {
+        setResponseEditorValue(JSON.stringify(JSON.parse(value), null, 2));
+        showToast('JSON formateado', 'success');
+    } catch (error) {
+        showToast('El body no contiene un JSON válido', 'error');
+    }
 }
 
 async function loadResponseConfig(token) {
@@ -156,7 +196,8 @@ async function loadResponseConfig(token) {
             document.getElementById('modal-token-name').textContent = token;
             document.getElementById('resp-status').value = cfg.status_code || 200;
             document.getElementById('resp-ctype').value = cfg.content_type || 'application/json';
-            document.getElementById('resp-body').value = cfg.body || '';
+            setResponseEditorValue(cfg.body || '');
+            if (responseEditor) responseEditor.refresh();
         } else {
             console.error('Error al cargar config:', data.message);
         }
@@ -169,7 +210,7 @@ async function saveResponseConfig() {
     const token = document.getElementById('modal-token-name').textContent;
     const status = parseInt(document.getElementById('resp-status').value) || 200;
     const ctype = document.getElementById('resp-ctype').value || 'application/json';
-    const body = document.getElementById('resp-body').value || '';
+    const body = getResponseEditorValue() || '';
 
     try {
         const resp = await fetch('api.php?action=save_response', {
@@ -198,7 +239,7 @@ async function deleteResponseConfig() {
         const data = await resp.json();
         if (data.status === 'success') {
             showToast('Configuración eliminada', 'success');
-            document.getElementById('resp-body').value = '';
+            setResponseEditorValue('');
             clearResponseConfigPanel();
         } else {
             showToast('Error al eliminar: ' + data.message, 'error');
@@ -414,10 +455,28 @@ function displayWebhookDetail(webhook) {
     const detailContent = document.getElementById('detail-content');
     const placeholder = document.getElementById('detail-placeholder');
 
+    payloadEditors.forEach(editor => editor.toTextArea());
+    payloadEditors.clear();
     placeholder.style.display = 'none';
     detailContent.style.display = 'block';
 
     detailContent.innerHTML = createWebhookDetailHTML(webhook);
+    initializePayloadEditor(webhook, detailContent);
+}
+
+function initializePayloadEditor(webhook, container) {
+    const textarea = container.querySelector('#payload-' + webhook.id);
+    if (!textarea || typeof CodeMirror === 'undefined') return;
+
+    const editor = CodeMirror.fromTextArea(textarea, {
+        mode: textarea.dataset.mode === 'highlight' ? { name: 'javascript', json: true } : null,
+        readOnly: true,
+        lineNumbers: true,
+        lineWrapping: false,
+        matchBrackets: true,
+        theme: 'monaco-local'
+    });
+    payloadEditors.set(webhook.id, editor);
 }
 
 // Crear HTML para un webhook individual
@@ -484,7 +543,7 @@ function createWebhookDetailHTML(webhook) {
                                     <img width="24" height="24" src="https://img.icons8.com/liquid-glass-color/32/view.png" alt="raw"/>
                                 </button>
                             </div>
-                            <pre class="code-block" id="payload-${webhook.id}" data-mode="${isJSON ? 'highlight' : 'raw'}">${isJSON ? syntaxHighlight(formattedBody) : escapeHtml(formattedBody)}</pre>
+                            <textarea class="code-block" id="payload-${webhook.id}" data-mode="${isJSON ? 'highlight' : 'raw'}">${escapeHtml(formattedBody)}</textarea>
                         </div>
                 </div>
                 ` : '<div class="detail-section"><p><em>Sin contenido en el body</em></p></div>'}
@@ -542,8 +601,9 @@ function syntaxHighlight(json) {
 
 // Copiar payload al portapapeles
 function copyPayload(button, webhookId) {
+    const editor = payloadEditors.get(webhookId);
     const payloadElement = document.getElementById('payload-' + webhookId);
-    const text = payloadElement.textContent;
+    const text = editor ? editor.getValue() : payloadElement.value;
 
     if (navigator.clipboard) {
         navigator.clipboard.writeText(text).then(() => {
@@ -682,6 +742,8 @@ async function clearWebhooks() {
             document.getElementById('no-webhooks').style.display = 'block';
             document.getElementById('detail-content').style.display = 'none';
             document.getElementById('detail-placeholder').style.display = 'flex';
+            payloadEditors.forEach(editor => editor.toTextArea());
+            payloadEditors.clear();
             webhooksData = [];
             selectedWebhookId = null;
             updateStats(0);
@@ -737,26 +799,24 @@ function applyToken() {
 
 // Alternar vista raw / highlighted para el payload
 function toggleRaw(webhookId, button) {
-    const pre = document.getElementById('payload-' + webhookId);
-    if (!pre) return;
+    const editor = payloadEditors.get(webhookId);
+    if (!editor) return;
 
-    const currentMode = pre.getAttribute('data-mode') || 'highlight';
+    const currentMode = editor.getOption('mode') ? 'highlight' : 'raw';
 
     if (currentMode === 'highlight') {
         // Cambiar a raw: quitar spans y mostrar texto plano
-        const text = pre.textContent;
-        pre.textContent = text; // ya es texto plano
-        pre.setAttribute('data-mode', 'raw');
+        editor.setOption('mode', null);
         // Cambiar icono del botón a indicate highlight is available (use an eye icon for raw and a code icon for highlight)
         button.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/windows/32/show-property.png" alt="view-raw"/>';
     } else {
         // Cambiar a highlighted: intentar parsear JSON y aplicar syntaxHighlight
-        const text = pre.textContent;
+        const text = editor.getValue();
         try {
             const parsed = JSON.parse(text);
             const formatted = JSON.stringify(parsed, null, 2);
-            pre.innerHTML = syntaxHighlight(formatted);
-            pre.setAttribute('data-mode', 'highlight');
+            editor.setValue(formatted);
+            editor.setOption('mode', { name: 'javascript', json: true });
             button.innerHTML = '<img width="24" height="24" src="https://img.icons8.com/windows/32/raw.png" alt="view-raw"/>';
         } catch (e) {
             // No es JSON válido, simplemente mantener texto
